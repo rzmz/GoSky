@@ -1,9 +1,17 @@
-# Androidi rakendus, mis (loodetavasti):
+### Androidi rakendus, mis:
 * teeb pilti ja salvestab need sd-kaardile
 * on võimalik veebiliidese kaudu konfigureerida
 * saadab pildid konfigureeritavale aadressile üle http-protokolli
 
+### Serveri rakendus, mis:
+* töötleb Androidi rakenduse poolt saadetud pilte vastavalt riistvara konfiguratsioonile
+
+### Veebirakendus, mis:
+* kuvab töödeldud pilte timelapse-põhiselt
+
 Projekti wiki: https://github.com/rzmz/TVP360Android/wiki
+Serverirakenduse koodi repo: https://github.com/rzmz/TVP360Server/
+Veebirakenduse koodi repo: https://github.com/rzmz/TVP360Website/
 
 ### Kasulikud viited Androidi arendajale:
 * http://developer.android.com/training/basics/firstapp/index.html
