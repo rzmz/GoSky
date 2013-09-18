@@ -3,7 +3,7 @@
 * on võimalik veebiliidese kaudu konfigureerida
 * saadab pildid konfigureeritavale aadressile üle http-protokolli
 
-Projekti wiki: https://github.com/rzmz/TVP360Android
+Projekti wiki: https://github.com/rzmz/TVP360Android/wiki
 
 ### Kasulikud viited Androidi arendajale:
 * http://developer.android.com/training/basics/firstapp/index.html
