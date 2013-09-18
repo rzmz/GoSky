@@ -9,9 +9,9 @@
 ### Veebirakendus, mis:
 * kuvab töödeldud pilte timelapse-põhiselt
 
-Projekti wiki: https://github.com/rzmz/TVP360Android/wiki
-Serverirakenduse koodi repo: https://github.com/rzmz/TVP360Server/
-Veebirakenduse koodi repo: https://github.com/rzmz/TVP360Website/
+* Projekti wiki: https://github.com/rzmz/TVP360Android/wiki
+* Serverirakenduse koodi repo: https://github.com/rzmz/TVP360Server/
+* Veebirakenduse koodi repo: https://github.com/rzmz/TVP360Website/
 
 ### Kasulikud viited Androidi arendajale:
 * http://developer.android.com/training/basics/firstapp/index.html
