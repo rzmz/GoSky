@@ -1,6 +1,3 @@
-TVP360Android
-=============
-
 # Androidi rakendus, mis (loodetavasti):
 * teeb pilti ja salvestab need sd-kaardile
 * on võimalik veebiliidese kaudu konfigureerida
