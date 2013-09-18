@@ -3,6 +3,8 @@
 * on võimalik veebiliidese kaudu konfigureerida
 * saadab pildid konfigureeritavale aadressile üle http-protokolli
 
+Projekti wiki: https://github.com/rzmz/TVP360Android
+
 ### Kasulikud viited Androidi arendajale:
 * http://developer.android.com/training/basics/firstapp/index.html
 * http://developer.android.com/reference/android/hardware/Camera.html
