@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "mapper.h"
 #include "image_opener.h"
+#include "jpeglib.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +13,13 @@ int main(int argc, char *argv[])
   int W;
   
   printf("TERE");
+  printf("tere jälle");
+
+  //open_img("C:\\a.jpg");
+  //print_opend_fail();
+
+  create_img(10,10);
+  save_img("C:\\b.jpg");
 
   //TEST. Hakkan lisama JPG teemat
 

@@ -1,11 +1,153 @@
 #include "image_opener.h"
+#include <stdio.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "jpeglib.h"
+#include "loger.h"
+
+static PIXEL **RGB_PITMAP;			//Väljundfaili pitiväli
+static unsigned int W=0;			//Väljundfaili laius
+static unsigned int H=0;			//Väljundfaili kõrgus
+static unsigned int quality=25;		//Väljundfaili kvaliteedinäitaja 0..25
 
 
-static t_bmp fail_bmp;
+/**
+ * Antud funktsioon võtab parameetriteks w-pildi laius ja h-pildi kõrgus ning tellib selle jaoks
+ * mälu ning moodustab bitmapi. Bitmapi pixleid, saab muuta funktsiooniga
+ * void set_pixel(int x, int y, PIXEL rgb); Bitmapi saab salvestada JPG formaadiks, funktsiooniga
+ * void save_img(char * fname)
+ *  * */
+void create_img(int w, int h){
+	int y,x;
+	char str_errormsg[128];
+	W=w;			//Seadistan staatiliste muutujate väärtused sellisteks nagu loodav pilt tuleb
+	H=h;
+
+
+	//Tellin mälu ridade pointeritele
+	//[0]->null
+	//...
+	//[n]->null
+	RGB_PITMAP = (PIXEL**)malloc(H * sizeof(PIXEL*));		//ülevalt alla
+	if (RGB_PITMAP==NULL) {
+		sprintf(str_errormsg, "Not enough memory for %i byte field!\n", H * sizeof(PIXEL*));
+		write_into_error_log(str_errormsg);
+		exit(1);
+		}
+
+	for (y = 0; y < H; y++){
+		//Tellin mälu ridadele
+		//[0]->[][][]...[]
+		//...
+		//[n]->null
+		RGB_PITMAP[y] = (PIXEL*)malloc(W * sizeof(PIXEL));	//ridade täitmine
+		if (!(RGB_PITMAP[y])){
+			 sprintf(str_errormsg, "Not enough memory for %i byte field!\n", W * sizeof(PIXEL));
+			 write_into_error_log(str_errormsg);
+			 exit(1);
+		 	 }
+		//Kui rida on tellitud, siis initaliseerin seal olevate pikslite väärtused.
+		 for (x = 0; x < W; x++){
+			 RGB_PITMAP[y][x].b = 0;
+			 if(x==y) RGB_PITMAP[y][x].g = 255;
+			 else RGB_PITMAP[y][x].g = 0;
+			 RGB_PITMAP[y][x].r = 0;
+			 }
+		}
+	return;
+	}
+
+
+
+/**
+ * Antud funktsioon salvestab parameetriga fname viidatud asukohale jpg formaadis faili, mille sisu
+ * on toodud staatilises muutujas RGB_PITMAP; Pildi mõõtmeteks tuleb WxH, mis määrati funktsiooniga
+ * void create_img(int w, int h); Pildi andmeid saab muuta funktsiooniga
+ * void set_pixel(int x, int y, PIXEL rgb) Pildi kvaliteeti saab muuta funktsiooniga
+ * void set_quality(int q);
+ * */
+void save_img(char * fname){
+	char str_errormsg[128];					//Puhver veateadete jaoks
+	struct jpeg_compress_struct cinfo;		//JPG kompressori OBJ
+	struct jpeg_error_mgr jerr;				//JPG error
+	FILE * outfile;							//Fail
+	JSAMPROW row_pointer[0];					//Rea andmete pointer
+	int row_stride;							//Andmerea maht baitides
+	//Määratakse JPG OBJ errori asjandus
+	cinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_compress(&cinfo);
+	//Luuakse FAIL OBJ binary kirjutamiseks, errori puhul väljutakse ja salvestatakse veateade
+	 if ((outfile = fopen(fname, "wb")) == NULL) {
+	    sprintf(str_errormsg, "can't open for write %s\n", fname);
+	    write_into_error_log(str_errormsg);
+	    exit(1);
+	    }
+	jpeg_stdio_dest(&cinfo, outfile);		//Antakse FAIL OBJ edasi kompressor OBJ'ektile
+
+	cinfo.image_width = W; 					//Pildi mõõtmed, mis väljundisse tulevad
+	cinfo.image_height = H;
+	cinfo.input_components = 3;				//Värvi komponentide hulk -RGB
+	cinfo.in_color_space = JCS_RGB; 		//RGB tüüpi sisend kompressor OBJ
+
+	jpeg_set_defaults(&cinfo);				//Teised väärtused defauldiks
+	jpeg_set_quality(&cinfo, quality, TRUE );
+
+	jpeg_start_compress(&cinfo, TRUE);		//Alustatkse JPG kompressimist
+
+	row_stride = W * 3;						//Arvutatakse, mitu baiti kulub ühe rea jaoks
+
+	while (cinfo.next_scanline < cinfo.image_height) {
+	    //RGB_BITMAP struktuuri bitiväljad on mälus seadistatud nii [R][G][B][R][G][B][R][G][B]
+		//Sellest tulenevalt võin teha alloleva teisenduse
+		row_pointer[0] = (unsigned char*)RGB_PITMAP[cinfo.next_scanline];
+	    jpeg_write_scanlines(&cinfo, row_pointer, 1);
+	  }
+
+
+	jpeg_finish_compress(&cinfo);	//Kompressioon lõpetatud.
+	fclose(outfile);
+	jpeg_destroy_compress(&cinfo);	//Vabastatakse kompressori mälu
+	return;
+	}
+
+
+/**
+ * Antud funktsioon seab väljundfaili pixli väärtuse. Selleks kasutab see pixli koordinaate x ja y.
+ * Muudatust ei viida sisse, kui x ja y viitavad pildi piiridest välja. Pixli väärtust kannab OBJ PIXEL.
+ * */
+void set_pixel(int x, int y, PIXEL rgb){
+	if((y<H) && (x<W) )
+		{
+		RGB_PITMAP[y][x].b = rgb.b;
+		RGB_PITMAP[y][x].g = rgb.g;
+		RGB_PITMAP[y][x].r = rgb.r;
+		}
+
+	 return;
+	 }
+
+
+/**
+ * Antud funktsioon seab väljundpildi kvaliteedi. Kvaliteedinäitaja on vahemikus 0-25, kus kõrgem näitaja
+ * on parem kvaliteet.
+ * */
+void set_quality(int q){
+	quality=q;
+	return;
+	}
+
+
+
+
+
+
 
 /*
-*Loop tühja BMP faili suuurusega WxH pixlit
-*/
+VANA BMP KOOD
+
+static t_bmp fail_bmp;
+//Loop tühja BMP faili suuurusega WxH pixlit
+
 void create_img(int W, int H){
 	 int y=0;
  	 int x=0;
@@ -72,3 +214,4 @@ void set_pixel(int x, int y, t_rgb rgb){
 	 return;
 	 }
 
+*/
