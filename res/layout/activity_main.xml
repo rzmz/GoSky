@@ -10,15 +10,16 @@
 		android:layout_width="0dip"
 		android:layout_height="fill_parent"
 		android:layout_weight="1" 
-		/>
-    
-	<Button
-	    android:id="@+id/button1"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:onClick="takeShots"
-	    android:text="@string/check_camera"
-		/>
+		>
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="takeShotsNoPreview"
+            android:text="@string/check_camera"
+            android:layout_gravity="center" />
+    </FrameLayout>
 
 
 </LinearLayout>

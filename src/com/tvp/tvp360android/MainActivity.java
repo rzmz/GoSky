@@ -18,17 +18,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
-public class MainActivity extends Activity {
+import android.view.SurfaceView;
+
+public class MainActivity extends Activity implements Camera.PreviewCallback, Camera.ErrorCallback, Camera.ShutterCallback, PictureCallback {
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
-	public static final int MEDIA_TYPE_VIDEO = 2;
 	public static final String TAG = "MainActivity";
-			
+    private Camera myCamera;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-	}
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -36,6 +38,32 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        myCamera.release();
+        Log.d(TAG, "Camera released, app paused");
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        myCamera.release();
+        Log.d(TAG, "Camera released, app destroyed");
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        try {
+            if(myCamera != null){
+                myCamera.reconnect();
+            }
+        } catch (IOException e) {
+            Log.d(TAG, "Error reconnecting to Camera!");
+        }
+    }
 
 	/** Check if this device has a camera */
 	private boolean checkCameraHardware(Context context) {
@@ -49,7 +77,7 @@ public class MainActivity extends Activity {
 	}
 	
 	/** A safe way to get an instance of the Camera object. */
-	public static Camera getCameraInstance(){
+	private Camera getCameraInstance(){
 	    Camera c = null;
 	    try {
 	        c = Camera.open(); // attempt to get a Camera instance
@@ -60,83 +88,114 @@ public class MainActivity extends Activity {
 	    return c; // returns null if camera is unavailable
 	}
 	
-	public void takeShots(View view){
-		if(checkCameraHardware(view.getContext())){
-			Camera cameraInstance = getCameraInstance();
-			if(cameraInstance != null){
-//				Parameters parameters = cameraInstance.getParameters();
-//				System.out.println(parameters.flatten());
-//				System.out.println("Camera count: " + Camera.getNumberOfCameras());
-				Log.d(TAG, "Camera instance is not null");
-				try{
-					cameraInstance.startPreview();
-					cameraInstance.takePicture(null, null, mPicture);
-				} catch (Exception e){
-					Log.d(TAG, e.getMessage());
-				}
-				cameraInstance.release();
-			}
-		} else {
-			Log.d(TAG, "No camera present!");
-		}
+	public void takeShotsNoPreview(View view){
+
+        if(myCamera == null){
+            if(checkCameraHardware(view.getContext())){
+                myCamera = getCameraInstance();
+            }
+        }
+
+        if(myCamera != null){
+            try {
+                Log.d(TAG, "Start of taking picture");
+                SurfaceView dummy = new SurfaceView(view.getContext());
+                myCamera.setPreviewDisplay(dummy.getHolder());
+                myCamera.startPreview();
+                myCamera.setPreviewCallback(this);
+                myCamera.setErrorCallback(this);
+                myCamera.takePicture(null, null, this);
+                Log.d(TAG, "End of taking picture");
+            } catch (Throwable e){
+                Log.d(TAG, "Exception in takeShotsNoPreview: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        else {
+            Log.d(TAG, "No camera present!");
+        }
 	}
-	
-	private PictureCallback mPicture = new PictureCallback() {
 
-	    @Override
-	    public void onPictureTaken(byte[] data, Camera camera) {
-
-	        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-	        if (pictureFile == null){
-	            Log.d(TAG, "Error creating media file, check storage permissions: ");
-	            return;
-	        }
-
-	        try {
-	            FileOutputStream fos = new FileOutputStream(pictureFile);
-	            fos.write(data);
-	            fos.close();
-	        } catch (FileNotFoundException e) {
-	            Log.d(TAG, "File not found: " + e.getMessage());
-	        } catch (IOException e) {
-	            Log.d(TAG, "Error accessing file: " + e.getMessage());
-	        }
-	    }
-	};
-	
 	/** Create a File for saving an image or video */
-	private static File getOutputMediaFile(int type){
+	private File getOutputMediaFile(int type){
 	    // To be safe, you should check that the SDCard is mounted
 	    // using Environment.getExternalStorageState() before doing this.
 
 		String directory = Environment.DIRECTORY_PICTURES;
-		Log.d(TAG, directory);
-		
-	    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(directory), "MyCameraApp");
-	    // This location works best if you want the created images to be shared
-	    // between applications and persist after your app has been uninstalled.
+
+        /*
+         There are two options for getting a storage directory on the SD card:
+         Environment.getExternalStoragePublicDirectory(): this uses a public directory. If the app is uninstalled, the photos will remain.
+         Context.getExternalFilesDir(): this uses a directory which is private to the app. If the app is uninstalled, the photos will also be deleted.
+        */
+
+	    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(directory), getPackageName());
 
 	    // Create the storage directory if it does not exist
-	    if (! mediaStorageDir.exists()){
-	        if (! mediaStorageDir.mkdirs()){
+	    if (!mediaStorageDir.exists()){
+	        if (!mediaStorageDir.mkdirs()){
 	            Log.d(TAG, "failed to create directory");
 	            return null;
 	        }
 	    }
 
-	    // Create a media file name
+        // Create a media file name
 	    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 	    File mediaFile;
 	    if (type == MEDIA_TYPE_IMAGE){
-	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-	        "IMG_"+ timeStamp + ".jpg");
-	    } else if(type == MEDIA_TYPE_VIDEO) {
-	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-	        "VID_"+ timeStamp + ".mp4");
+	        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
 	    } else {
 	        return null;
 	    }
 
 	    return mediaFile;
 	}
+
+    @Override
+    public void onPreviewFrame(byte[] bytes, Camera camera) {
+        Log.d(TAG, "Start onPreviewFrame");
+    }
+
+    @Override
+    public void onError(int i, Camera camera) {
+        Log.d(TAG, "Start onError");
+    }
+
+    @Override
+    public void onShutter() {
+        Log.d(TAG, "Start onShutter");
+    }
+
+    @Override
+    public void onPictureTaken(byte[] bytes, Camera camera) {
+        Log.d(TAG, "Start onPictureTaken");
+
+        if(bytes == null || bytes.length == 0){
+            Log.d(TAG, "Image size is 0, nothing to save.");
+            return;
+        }
+
+        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+        if (pictureFile == null){
+            Log.d(TAG, "Error creating media file, check storage permissions.");
+            return;
+        }
+
+        try {
+            Log.d(TAG, "File name: " + pictureFile.getAbsolutePath());
+            FileOutputStream fos = new FileOutputStream(pictureFile);
+            fos.write(bytes);
+            fos.close();
+            myCamera.stopPreview();
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "File not found: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.d(TAG, "Error accessing file: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Throwable e){
+            Log.d(TAG, "Unknown error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
