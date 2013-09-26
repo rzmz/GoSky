@@ -14,17 +14,31 @@ import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
 import android.view.SurfaceView;
+import android.widget.Button;
 
 public class MainActivity extends Activity implements Camera.PreviewCallback, Camera.ErrorCallback, Camera.ShutterCallback, PictureCallback {
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final String TAG = "MainActivity";
-    private Camera myCamera;
+    private Camera _myCamera;
+
+    private final Handler _handler = new Handler();
+
+    private View _view = null;
+
+    // time interval in seconds
+    private int _interval = 5;
+
+    private boolean _externalStorageAvailable = false;
+    private boolean _externalStorageWritable = false;
+
+    private boolean _isTakingPictures = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,23 +56,30 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
     @Override
     protected void onPause(){
         super.onPause();
-        myCamera.release();
-        Log.d(TAG, "Camera released, app paused");
+        if(_myCamera != null){
+            _myCamera.release();
+            Log.d(TAG, "Camera released, app paused");
+        }
+        if(_isTakingPictures){
+            handlerRemoveCallbacks();
+        }
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        myCamera.release();
-        Log.d(TAG, "Camera released, app destroyed");
+        if(_myCamera != null){
+            _myCamera.release();
+            Log.d(TAG, "Camera released, app destroyed");
+        }
     }
 
     @Override
     protected void onResume(){
         super.onResume();
         try {
-            if(myCamera != null){
-                myCamera.reconnect();
+            if(_myCamera != null){
+                _myCamera.reconnect();
             }
         } catch (IOException e) {
             Log.d(TAG, "Error reconnecting to Camera!");
@@ -87,24 +108,66 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
 	    }
 	    return c; // returns null if camera is unavailable
 	}
-	
-	public void takeShotsNoPreview(View view){
 
-        if(myCamera == null){
-            if(checkCameraHardware(view.getContext())){
-                myCamera = getCameraInstance();
+    /**
+     * This method gets called from the activity_main view when start/stop button is pressed
+     * @param view
+     */
+    public void toggleAction(View view){
+        _view = view;
+        _isTakingPictures = !_isTakingPictures;
+        Button _button = (Button) findViewById(R.id.startStop);
+        if(!_isTakingPictures){
+            _button.setText(R.string.start);
+            handlerRemoveCallbacks();
+        } else {
+            _button.setText(R.string.stop);
+            handlerPostDelayed();
+        }
+    }
+
+    private long getIntervalInMillis(){
+        return _interval * 1000;
+    }
+
+    private Runnable _runnable = new Runnable() {
+        @Override
+        public void run() {
+            takePicture();
+            handlerPostDelayed();
+        }
+    };
+
+    private void handlerPostDelayed(){
+        _handler.postDelayed(_runnable, getIntervalInMillis());
+    }
+
+    private void handlerRemoveCallbacks(){
+        _handler.removeCallbacks(_runnable);
+    }
+
+	private void takePicture(){
+
+        if(_view == null){
+            Log.d(TAG, "No view! Cannot take picture");
+            return;
+        }
+
+        if(_myCamera == null){
+            if(checkCameraHardware(_view.getContext())){
+                _myCamera = getCameraInstance();
             }
         }
 
-        if(myCamera != null){
+        if(_myCamera != null){
             try {
                 Log.d(TAG, "Start of taking picture");
-                SurfaceView dummy = new SurfaceView(view.getContext());
-                myCamera.setPreviewDisplay(dummy.getHolder());
-                myCamera.startPreview();
-                myCamera.setPreviewCallback(this);
-                myCamera.setErrorCallback(this);
-                myCamera.takePicture(null, null, this);
+                SurfaceView dummy = new SurfaceView(_view.getContext());
+                _myCamera.setPreviewDisplay(dummy.getHolder());
+                _myCamera.startPreview();
+                _myCamera.setPreviewCallback(this);
+                _myCamera.setErrorCallback(this);
+                _myCamera.takePicture(null, null, this);
                 Log.d(TAG, "End of taking picture");
             } catch (Throwable e){
                 Log.d(TAG, "Exception in takeShotsNoPreview: " + e.getMessage());
@@ -186,7 +249,7 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(bytes);
             fos.close();
-            myCamera.stopPreview();
+            _myCamera.stopPreview();
         } catch (FileNotFoundException e) {
             Log.d(TAG, "File not found: " + e.getMessage());
             e.printStackTrace();

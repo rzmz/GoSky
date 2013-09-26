@@ -13,12 +13,13 @@
 		>
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/startStop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="takeShotsNoPreview"
-            android:text="@string/check_camera"
+            android:onClick="toggleAction"
+            android:text="@string/start"
             android:layout_gravity="center" />
+
     </FrameLayout>
 
 
