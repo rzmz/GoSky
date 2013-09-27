@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -21,24 +20,21 @@ import android.view.View;
 
 import android.view.SurfaceView;
 import android.widget.Button;
+import android.widget.EditText;
 
-public class MainActivity extends Activity implements Camera.PreviewCallback, Camera.ErrorCallback, Camera.ShutterCallback, PictureCallback {
+public class MainActivity extends Activity implements Camera.PreviewCallback, Camera.ErrorCallback, Camera.ShutterCallback, Camera.PictureCallback, Camera.AutoFocusCallback {
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
-	public static final String TAG = "MainActivity";
+	public static final String TAG = MainActivity.class.getSimpleName();
     private Camera _myCamera;
-
     private final Handler _handler = new Handler();
-
     private View _view = null;
-
     // time interval in seconds
     private int _interval = 5;
-
     private boolean _externalStorageAvailable = false;
     private boolean _externalStorageWritable = false;
-
     private boolean _isTakingPictures = false;
+    private String _uploadScriptUrl = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +113,11 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         _view = view;
         _isTakingPictures = !_isTakingPictures;
         Button _button = (Button) findViewById(R.id.startStop);
+        EditText _editText = (EditText) findViewById(R.id.editText);
+        _uploadScriptUrl = _editText.getText().toString();
+
+        Log.d(TAG, "Upload script url set to: " + _uploadScriptUrl);
+
         if(!_isTakingPictures){
             _button.setText(R.string.start);
             handlerRemoveCallbacks();
@@ -167,10 +168,11 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
                 _myCamera.startPreview();
                 _myCamera.setPreviewCallback(this);
                 _myCamera.setErrorCallback(this);
+                _myCamera.autoFocus(this);
                 _myCamera.takePicture(null, null, this);
                 Log.d(TAG, "End of taking picture");
             } catch (Throwable e){
-                Log.d(TAG, "Exception in takeShotsNoPreview: " + e.getMessage());
+                Log.d(TAG, "Exception in takePicture: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -250,6 +252,7 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
             fos.write(bytes);
             fos.close();
             _myCamera.stopPreview();
+            new AsyncHttpPostTask(_uploadScriptUrl).execute(pictureFile);
         } catch (FileNotFoundException e) {
             Log.d(TAG, "File not found: " + e.getMessage());
             e.printStackTrace();
@@ -260,5 +263,10 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
             Log.d(TAG, "Unknown error: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onAutoFocus(boolean b, Camera camera) {
+        Log.d(TAG, "Autofocus");
     }
 }

@@ -20,6 +20,13 @@
             android:text="@string/start"
             android:layout_gravity="center" />
 
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText"
+            android:hint="@string/upload_url"
+            android:layout_gravity="center_horizontal|top" />
+
     </FrameLayout>
 
 
