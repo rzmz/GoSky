@@ -30,7 +30,7 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
     private final Handler _handler = new Handler();
     private View _view = null;
     // time interval in seconds
-    private int _interval = 5;
+    private int _interval = 60;
     private boolean _externalStorageAvailable = false;
     private boolean _externalStorageWritable = false;
     private boolean _isTakingPictures = false;
