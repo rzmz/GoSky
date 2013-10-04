@@ -113,10 +113,19 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         _view = view;
         _isTakingPictures = !_isTakingPictures;
         Button _button = (Button) findViewById(R.id.startStop);
-        EditText _editText = (EditText) findViewById(R.id.editText);
-        _uploadScriptUrl = _editText.getText().toString();
+        EditText _uploadUrl = (EditText) findViewById(R.id.uploadUrl);
+        EditText _intervalSeconds = (EditText) findViewById(R.id.intervalSeconds);
+
+        _uploadScriptUrl = _uploadUrl.getText().toString();
+
+        _interval = Integer.parseInt(_intervalSeconds.getText().toString());
+
+        if(_interval == 0){
+            _interval = 60;
+        }
 
         Log.d(TAG, "Upload script url set to: " + _uploadScriptUrl);
+        Log.d(TAG, "Time interval set to: " + _interval);
 
         if(!_isTakingPictures){
             _button.setText(R.string.start);

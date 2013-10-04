@@ -7,5 +7,6 @@
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="upload_url">Enter upload url</string>
+    <string name="interval_seconds">Enter time interval in seconds</string>
 
 </resources>

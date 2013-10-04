@@ -5,12 +5,26 @@
 	android:layout_height="fill_parent"
 	android:orientation="horizontal"
 	>
-	
+
     <FrameLayout android:id="@+id/camera_preview"
 		android:layout_width="0dip"
 		android:layout_height="fill_parent"
-		android:layout_weight="1" 
+		android:layout_weight="1"
 		>
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/uploadUrl"
+            android:hint="@string/upload_url"
+            android:layout_gravity="center_horizontal|top" />
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/intervalSeconds"
+            android:hint="@string/interval_seconds"
+            android:layout_gravity="center_horizontal|bottom" />
 
         <Button
             android:id="@+id/startStop"
@@ -19,13 +33,6 @@
             android:onClick="toggleAction"
             android:text="@string/start"
             android:layout_gravity="center" />
-
-        <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/editText"
-            android:hint="@string/upload_url"
-            android:layout_gravity="center_horizontal|top" />
 
     </FrameLayout>
 
