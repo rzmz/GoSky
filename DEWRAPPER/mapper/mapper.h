@@ -18,6 +18,8 @@ typedef struct _map
 
 point P(int x, int y);
 point P2(int x, int y);
+void DWPA_set_parameters(int w, int h, int x, int y, int r, int f);
+int DWPA_get_img_size(void);
 
 void create_map(int W, int H);
 void generate_image_from_map(char *fname);

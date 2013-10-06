@@ -1,4 +1,4 @@
-#include "image_opener.h"
+#include "image.h"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -32,7 +32,7 @@ void open_img(char* fname){
 	//Üritan avada jpg faili ning errori tekkimisel kirjutan selle errori logisse ja väljun.
 	if (((infile = fopen(fname, "rb"))) == NULL) {
 		sprintf(str_errormsg, "can't open %s\n", fname);
-		write_into_error_log(str_errormsg);
+		write_error_log(str_errormsg);
 		exit(1);
 		}
 	jpeg_stdio_src(&cinfo, infile);			//annan faili edasi decompress obj
@@ -55,7 +55,7 @@ void open_img(char* fname){
 	//Kui tekib viga, siis kirjutan selle raportisse ja väljun
 	if (RGB_PITMAP==NULL) {
 		sprintf(str_errormsg, "Not enough memory for %i byte field!\n", H * sizeof(PIXEL*));
-		write_into_error_log(str_errormsg);
+		write_error_log(str_errormsg);
 		exit(1);
 		}
 	//int i=0;
@@ -70,7 +70,7 @@ void open_img(char* fname){
 			//Kui tekib viga, siis kirjutan selle raportisse ja väljun.
 			if (!(RGB_PITMAP[y])){
 				 sprintf(str_errormsg, "Not enough memory for %i byte field!\n", W * sizeof(PIXEL));
-				 write_into_error_log(str_errormsg);
+				 write_error_log(str_errormsg);
 				 exit(1);
 			 	 }
 
@@ -90,10 +90,14 @@ void open_img(char* fname){
 
 /**
  * Antud funktsioon tagastab sisse loetud pildilt pixli OBJ ette antud aadressilt x jay.
+ * Kui aadress on piiridest väljas, kirjutatakse maksimaalse aadressiga pixel väljundisse
  * */
 PIXEL get_pixel(int x, int y){
-	return RGB_PITMAP[y][x];
-	 }
+	if((y<H) && (x<W))
+		return RGB_PITMAP[y][x];
+	else
+		return RGB_PITMAP[H-1][W-1];
+	}
 
 /**
  * ANtud funktsioon tagastab sisse loetud pildi kõrguse

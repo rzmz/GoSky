@@ -1,5 +1,5 @@
 #include "mapper.h"
-#include "image_opener.h"
+#include "image.h"
 map pixel_map;
 #include "stdio.h"
 #include "stdlib.h"
@@ -37,7 +37,9 @@ void generate_image_from_map(char *fname){
 	int x,y;
 	int H=pixel_map.H;
 	int W=pixel_map.W;
-/*
+
+
+
 	create_img(W,H);
 
 	for(y=0;y<H;y++){
@@ -46,6 +48,6 @@ void generate_image_from_map(char *fname){
 		   set_pixel(x,y, get_pixel(p.x, p.y));
 	     }
 		}
-	save_img(fname);*/
+	save_img(fname);
 	return;
 	}

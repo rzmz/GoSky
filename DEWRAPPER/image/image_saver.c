@@ -1,4 +1,4 @@
-#include "image_opener.h"
+#include "image.h"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -31,7 +31,7 @@ void create_img(int w, int h){
 	RGB_PITMAP = (PIXEL**)malloc(H * sizeof(PIXEL*));		//ülevalt alla
 	if (RGB_PITMAP==NULL) {
 		sprintf(str_errormsg, "Not enough memory for %i byte field!\n", H * sizeof(PIXEL*));
-		write_into_error_log(str_errormsg);
+		write_error_log(str_errormsg);
 		exit(1);
 		}
 
@@ -43,15 +43,14 @@ void create_img(int w, int h){
 		RGB_PITMAP[y] = (PIXEL*)malloc(W * sizeof(PIXEL));	//ridade täitmine
 		if (!(RGB_PITMAP[y])){
 			 sprintf(str_errormsg, "Not enough memory for %i byte field!\n", W * sizeof(PIXEL));
-			 write_into_error_log(str_errormsg);
+			 write_error_log(str_errormsg);
 			 exit(1);
 		 	 }
 		//Kui rida on tellitud, siis initaliseerin seal olevate pikslite väärtused.
 		 for (x = 0; x < W; x++){
-			 RGB_PITMAP[y][x].b = 0;
-			 if(x==y) RGB_PITMAP[y][x].g = 255;
-			 else RGB_PITMAP[y][x].g = 0;
-			 RGB_PITMAP[y][x].r = 0;
+			 RGB_PITMAP[y][x].b = 255;
+			 RGB_PITMAP[y][x].g = 255;
+			 RGB_PITMAP[y][x].r = 255;
 			 }
 		}
 	return;
@@ -79,7 +78,7 @@ void save_img(char * fname){
 	//Luuakse FAIL OBJ binary kirjutamiseks, errori puhul väljutakse ja salvestatakse veateade
 	 if ((outfile = fopen(fname, "wb")) == NULL) {
 	    sprintf(str_errormsg, "can't open for write %s\n", fname);
-	    write_into_error_log(str_errormsg);
+	    write_error_log(str_errormsg);
 	    exit(1);
 	    }
 	jpeg_stdio_dest(&cinfo, outfile);		//Antakse FAIL OBJ edasi kompressor OBJ'ektile

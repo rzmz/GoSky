@@ -1,5 +1,5 @@
-#ifndef _IMAGE_OPENER_H_
-#define _IMAGE_OPENER_H_
+#ifndef _IMAGE_H_
+#define _IMAGE_H_
 
 //#include "libbmp.h"
 
