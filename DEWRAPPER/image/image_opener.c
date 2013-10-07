@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "jpeglib.h"
-#include "loger.h"
+#include "logers.h"
 #include "libbmp.h"
 
 static PIXEL **RGB_PITMAP;					//Bitmap, kuhu kirjutatakse sisse loetud JPG fail

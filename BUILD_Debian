@@ -1,10 +1,11 @@
+#!/bin/sh
 rm TEST.jpg
 
 cp jpeg_lib_makes/jconfig_deb.h jpeg-9/jconfig.h
 cp jpeg_lib_makes/Makefile_deb jpeg-9/Makefile 
 
-make -C jpeg-9 -f Makefile 
 make -C jpeg-9 clean -f Makefile
+make -C jpeg-9 -f Makefile 
 
 cp jpeg-9/libjpeg.a DEWRAPPER/image/libjpg/libjpeg.a
 

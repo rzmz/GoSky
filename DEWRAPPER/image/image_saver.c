@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "jpeglib.h"
-#include "loger.h"
+#include "logers.h"
 
 static PIXEL **RGB_PITMAP;			//Väljundfaili pitiväli
 static unsigned int W=0;			//Väljundfaili laius
