@@ -1,0 +1,29 @@
+Programmi DEWRAPPER buildimisest
+--------------------------------
+
+Buildimine on koostatud gcc kompillaatorile.
+
+Buildimine toimub kahes osas, kus esmalt kompilleeritakse libjpeg-9 ning pärast seda pilditöötlus tarkvara DEWRAPPER. Buildimist saab esile kutsuda käsureaskriptidega. Koostatud on kaks skripti nii Windows kui Debian OP.-süsteemi jaoks.
+
+libjpeg-9 buildimine. Buildimise käigus koostatakse libjpeg.a fail, mis kopeeritakse pärast buildi asukohale DEWRAPPER\image\libjpg\libjpeg.a.
+
+DEWRAPPER buildimine. Selle käigus kompilleeritakse kogu vajalik pilditöötlustarkvara ning tekitatakse kausta .\ fail DEWRAPPER.exe. See kutsutakse välja failile myyr.jpg ning tekitatakse sellest väljund TEST.jpeg. Tekivad logifailid EEROR.txt ja PROGRESS.txt 
+
+
+
+
+
+
+Kaustad ja failid:
+----------------------------
+
+DEWRAPPER 		- kaust, kus paikneb DEWRAPPER kood (Eclipse projekt)
+jpeg-9 			- kaust, kus paikneb libjpeg kood
+jpeg_lib_makes 		- erinevad libjepg make ja configuratsiooni failid vastavalt 				platvormile. Sealt kopeerivad 
+
+Build_Debian		-Debiani buildscript
+Build_Windows.BAT	-Windowsi buildscript
+
+EEROR.txt 		- Errorilogi (ei sisalda veel mõistliku teksti)
+PROGRESS.txt		- Tehtud tööde logi (halvasti struktureeritud sisu)
+
