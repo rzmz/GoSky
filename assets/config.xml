@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A sample configuration file -->
+<config>
+    <cameraSettings>
+        <lensType>FishEye</lensType>
+        <mountType>Fixed</mountType>
+    </cameraSettings>
+    <appSettings>
+        <intervalSeconds>30</intervalSeconds>
+        <uploadUrl></uploadUrl>
+    </appSettings>
+</config>
