@@ -25,6 +25,7 @@ import java.util.Date;
 
 /**
  * MainActivity
+ * This is the project main activity
  */
 public class MainActivity extends Activity implements Camera.PreviewCallback, Camera.ErrorCallback, Camera.ShutterCallback, Camera.PictureCallback, Camera.AutoFocusCallback {
 
