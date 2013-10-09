@@ -8,7 +8,7 @@
 static PIXEL **RGB_PITMAP;			//Väljundfaili pitiväli
 static unsigned int W=0;			//Väljundfaili laius
 static unsigned int H=0;			//Väljundfaili kõrgus
-static unsigned int quality=25;		//Väljundfaili kvaliteedinäitaja 0..25
+static unsigned int quality=50;		//Väljundfaili kvaliteedinäitaja 0..25
 
 
 /**
