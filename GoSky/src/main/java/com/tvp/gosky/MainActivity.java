@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * MainActivity
+ */
 public class MainActivity extends Activity implements Camera.PreviewCallback, Camera.ErrorCallback, Camera.ShutterCallback, Camera.PictureCallback, Camera.AutoFocusCallback {
 
     public static final int MEDIA_TYPE_IMAGE = 1;
