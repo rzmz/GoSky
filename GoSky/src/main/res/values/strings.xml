@@ -2,7 +2,11 @@
 <resources>
 
     <string name="app_name">GoSky</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="action_settings">Settings</string>
+    <string name="edit_message">Message</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="upload_url">Server upload url</string>
+    <string name="interval_seconds">Time interval in seconds</string>
 
 </resources>
