@@ -8,5 +8,11 @@
     <string name="stop">Stop</string>
     <string name="upload_url">Server upload url</string>
     <string name="interval_seconds">Time interval in seconds</string>
+    <string name="wifiOn">Wifi</string>
+    <string name="wifiOff">Wifi</string>
+    <string name="dataOn">Data</string>
+    <string name="dataOff">Data</string>
+    <string name="hdrOn">HDR</string>
+    <string name="hdrOff">HDR</string>
 
 </resources>

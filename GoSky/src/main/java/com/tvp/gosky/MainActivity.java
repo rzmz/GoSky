@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -11,8 +13,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ToggleButton;
 
 import com.tvp.gosky.util.AsyncHttpPostTask;
 
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -41,10 +44,23 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
     private boolean _isTakingPictures = false;
     private String _uploadScriptUrl = null;
 
+    private ToggleButton _wifiButton = null;
+    private WifiManager _wifiManager = null;
+
+    private ToggleButton _dataButton = null;
+
+    private ConnectivityManager _connectivityManager = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        _wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
+        _wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+        _wifiButton.setChecked(_wifiManager.isWifiEnabled());
+        _dataButton = (ToggleButton) findViewById(R.id.toggleData);
+        _connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        _dataButton.setChecked(getMobileDataEnabled());
     }
 
     @Override
@@ -110,6 +126,37 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         return c; // returns null if camera is unavailable
     }
 
+    public void toggleWifi(View view){
+        _wifiManager.setWifiEnabled(!_wifiManager.isWifiEnabled());
+        Log.d(TAG, String.format("Wifi connection %s", _wifiManager.isWifiEnabled() ? "enabled" : "disabled"));
+    }
+
+    private boolean getMobileDataEnabled() {
+        try {
+            Method method = _connectivityManager.getClass().getMethod("getMobileDataEnabled");
+            return (Boolean) method.invoke(_connectivityManager);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void setMobileDataEnabled(boolean on) {
+        try {
+            Method method = _connectivityManager.getClass().getMethod("setMobileDataEnabled", boolean.class);
+            method.invoke(_connectivityManager, on);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void toggleData(View view) {
+        setMobileDataEnabled(!getMobileDataEnabled());
+        Log.d(TAG, String.format("Data connection %s", getMobileDataEnabled() ? "enabled" : "disabled"));
+    }
+
     /**
      * This method gets called from the activity_main view when start/stop button is pressed
      * @param view
@@ -117,7 +164,7 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
     public void toggleAction(View view){
         _view = view;
         _isTakingPictures = !_isTakingPictures;
-        Button _button = (Button) findViewById(R.id.startStop);
+        ToggleButton _button = (ToggleButton) findViewById(R.id.startStop);
         EditText _uploadUrl = (EditText) findViewById(R.id.uploadUrl);
         EditText _intervalSeconds = (EditText) findViewById(R.id.intervalSeconds);
 
@@ -133,10 +180,8 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         Log.d(TAG, "Time interval set to: " + _interval);
 
         if(!_isTakingPictures){
-            _button.setText(R.string.start);
             handlerRemoveCallbacks();
         } else {
-            _button.setText(R.string.stop);
             handlerPostDelayed();
         }
     }
