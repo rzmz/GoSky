@@ -164,7 +164,7 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
     private void takePicture(){
 
         if(_view == null){
-            Log.d(TAG, "No view! Cannot take picture");
+            Log.d(TAG, "No view present! Cannot take picture");
             return;
         }
 
