@@ -185,6 +185,14 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
 
         _uploadScriptUrl = _uploadUrl.getText().toString();
 
+        if(!_uploadScriptUrl.toLowerCase().contains("http://")){
+            _uploadScriptUrl = String.format("http://%s", _uploadScriptUrl);
+        }
+
+        if(!_uploadScriptUrl.toLowerCase().contains("/uploadfiles.php")){
+            _uploadScriptUrl = String.format("%s/uploadfiles.php", _uploadScriptUrl);
+        }
+
         _interval = Integer.parseInt(_intervalSeconds.getText().toString());
 
         if(_interval == 0){
