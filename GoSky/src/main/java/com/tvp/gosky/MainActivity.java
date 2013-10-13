@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * MainActivity
@@ -61,6 +62,20 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         _dataButton = (ToggleButton) findViewById(R.id.toggleData);
         _connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         _dataButton.setChecked(getMobileDataEnabled());
+        initCamera();
+    }
+
+    private void initCamera(){
+
+        if(_myCamera == null){
+            if(checkCameraHardware(getBaseContext())){
+                _myCamera = getCameraInstance();
+            }
+        }
+
+        if(_myCamera != null){
+            setCameraParameters();
+        }
     }
 
     @Override
@@ -70,17 +85,17 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         return true;
     }
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        if(_myCamera != null){
-            _myCamera.release();
-            Log.d(TAG, "Camera released, app paused");
-        }
-        if(_isTakingPictures){
-            handlerRemoveCallbacks();
-        }
-    }
+//    @Override
+//    protected void onPause(){
+//        super.onPause();
+//        if(_myCamera != null){
+//            _myCamera.release();
+//            Log.d(TAG, "Camera released, app paused");
+//        }
+//        if(_isTakingPictures){
+//            handlerRemoveCallbacks();
+//        }
+//    }
 
     @Override
     protected void onDestroy(){
@@ -91,17 +106,17 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         }
     }
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        try {
-            if(_myCamera != null){
-                _myCamera.reconnect();
-            }
-        } catch (IOException e) {
-            Log.d(TAG, "Error reconnecting to Camera!");
-        }
-    }
+//    @Override
+//    protected void onResume(){
+//        super.onResume();
+//        try {
+//            if(_myCamera != null){
+//                _myCamera.reconnect();
+//            }
+//        } catch (IOException e) {
+//            Log.d(TAG, "Error reconnecting to Camera!");
+//        }
+//    }
 
     /** Check if this device has a camera */
     private boolean checkCameraHardware(Context context) {
@@ -206,18 +221,31 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         _handler.removeCallbacks(_runnable);
     }
 
-    private void takePicture(){
+    private void setCameraParameters(){
+        Camera.Parameters parameters = _myCamera.getParameters();
+        List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
 
-        if(_view == null){
-            Log.d(TAG, "No view present! Cannot take picture");
-            return;
-        }
+        int max = 0;
+        int index = 0;
 
-        if(_myCamera == null){
-            if(checkCameraHardware(_view.getContext())){
-                _myCamera = getCameraInstance();
+        for (int i = 0; i < sizes.size(); i++){
+            Camera.Size s = sizes.get(i);
+            int size = s.height * s.width;
+            if (size > max) {
+                index = i;
+                max = size;
             }
         }
+
+        parameters.setPictureSize(sizes.get(index).width, sizes.get(index).height);
+        parameters.setJpegQuality(100);
+
+        _myCamera.setParameters(parameters);
+
+        Log.d(TAG, String.format("Camera size set to: %sx%s", parameters.getPictureSize().width, parameters.getPictureSize().height));
+    }
+
+    private void takePicture(){
 
         if(_myCamera != null){
             try {
