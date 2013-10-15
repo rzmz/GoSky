@@ -14,5 +14,6 @@
     <string name="dataOff">Data</string>
     <string name="hdrOn">HDR</string>
     <string name="hdrOff">HDR</string>
+    <string name="no_wifi_present">Your device does not support WIFI networking. WIFI funcationality disabled.</string>
 
 </resources>

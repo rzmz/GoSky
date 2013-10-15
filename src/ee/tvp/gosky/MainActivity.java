@@ -25,9 +25,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ToggleButton;
 import ee.tvp.gosky.utils.AsyncHttpPostTask;
+import ee.tvp.gosky.utils.MessageDialog;
 
 public class MainActivity extends Activity implements Camera.PreviewCallback, Camera.ErrorCallback, Camera.ShutterCallback, Camera.PictureCallback, Camera.AutoFocusCallback {
 
+	final Context _context = this;
+	
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final String TAG = MainActivity.class.getSimpleName();
     private Camera _myCamera;
@@ -52,14 +55,26 @@ public class MainActivity extends Activity implements Camera.PreviewCallback, Ca
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         _wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
-        _wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-        _wifiButton.setChecked(_wifiManager.isWifiEnabled());
+        if(hasWifi()){
+            _wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+            _wifiButton.setChecked(_wifiManager.isWifiEnabled());        	
+        } else {
+        	// no wifi present in the device at all!
+        	_wifiButton.setClickable(false);
+        	_wifiButton.setEnabled(false);
+        	MessageDialog.notice(getResources().getString(R.string.no_wifi_present), _context);
+        	Log.i(TAG, getResources().getString(R.string.no_wifi_present));
+        }
         _dataButton = (ToggleButton) findViewById(R.id.toggleData);
         _connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         _dataButton.setChecked(getMobileDataEnabled());
         initCamera();
     }
 
+    private boolean hasWifi(){
+    	return getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI);
+    }
+    
     private void initCamera(){
 
     	if(_myCamera != null) {
