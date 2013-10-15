@@ -1,2 +1,0 @@
-This is a commit test by Andreas Orlo
-Changed it.
