@@ -61,11 +61,12 @@
                 android:onClick="toggleData" />
 
             <ToggleButton
+                android:id="@+id/toggleHdr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/hdrOn"
+                android:onClick="toggleHDR"
                 android:textOff="@string/hdrOff"
-                android:id="@+id/toggleHdr" />
+                android:textOn="@string/hdrOn" />
 
         </TableRow>
 

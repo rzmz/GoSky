@@ -14,6 +14,8 @@
     <string name="dataOff">Data</string>
     <string name="hdrOn">HDR</string>
     <string name="hdrOff">HDR</string>
-    <string name="no_wifi_present">Your device does not support WIFI networking. WIFI funcationality disabled.</string>
-
+    <string name="no_wifi_present">Your device does not support WIFI networking. WIFI functionality disabled.</string>
+    <string name="externalStorageUnavailable">External storage is inavailable. Using internal storage.</string>
+    <string name="cameraUnavailable">External storage is inavailable. Using internal storage.</string>
+    
 </resources>
