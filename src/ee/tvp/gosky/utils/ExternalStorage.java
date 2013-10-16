@@ -24,7 +24,8 @@ public class ExternalStorage {
 	}
 
 	File getExternalStorageDir(String type, Context context) {
-		return context.getExternalFilesDir(type);
+		//return context.getExternalFilesDir(type);
+		return Environment.getExternalStoragePublicDirectory(type);
 	}
 	
     /*

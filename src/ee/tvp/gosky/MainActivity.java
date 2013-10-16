@@ -1,11 +1,6 @@
 package ee.tvp.gosky;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -24,15 +19,12 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ToggleButton;
-import ee.tvp.gosky.utils.AsyncHttpPostTask;
 import ee.tvp.gosky.utils.Cam;
 import ee.tvp.gosky.utils.ExternalStorage;
 import ee.tvp.gosky.utils.Messenger;
 import ee.tvp.gosky.utils.SysInfo;
 
-public class MainActivity extends Activity implements Camera.PreviewCallback,
-		Camera.ErrorCallback, Camera.ShutterCallback, Camera.PictureCallback,
-		Camera.AutoFocusCallback {
+public class MainActivity extends Activity {
 
 	final Context _context = this;
 	final Messenger _messenger = new Messenger(_context);
@@ -41,6 +33,8 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 
 	final Handler _handler = new Handler();
 
+	SurfaceView _surfaceView = null;
+	
 	int _interval = 60;
 	boolean _isTakingPictures = false;
 	String _uploadScriptUrl = null;
@@ -54,11 +48,28 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 	boolean _isHdr = false;
 	
 	// UI elements
-	EditText _uploadUrl = null;
-	EditText _intervalSeconds = null;
+	EditText _uploadUrlEditText = null;
+	EditText _intervalSecondsEditText = null;
 	ToggleButton _dataButton = null;
 	ToggleButton _hdrButton = null;
 	ToggleButton _wifiButton = null;
+	ToggleButton _startStopButton = null;
+	
+	public Context getContext(){
+		return _context;
+	}
+	
+	public ExternalStorage getStorage(){
+		return _storage;
+	}
+	
+	public String getUploadScriptUrl(){
+		return _uploadScriptUrl;
+	}
+	
+	public SurfaceView getSurfaceView(){
+		return _surfaceView;
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,22 +77,32 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		_uploadUrl = (EditText) findViewById(R.id.uploadUrl);
-		_intervalSeconds = (EditText) findViewById(R.id.intervalSeconds);
+		_uploadUrlEditText = (EditText) findViewById(R.id.uploadUrl);
+		_intervalSecondsEditText = (EditText) findViewById(R.id.intervalSeconds);
 		_wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
 		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
 		_hdrButton = (ToggleButton) findViewById(R.id.toggleHdr);
+		_startStopButton = (ToggleButton) findViewById(R.id.startStop);
+		_startStopButton.setEnabled(false);
+		_startStopButton.setClickable(false);
+		_surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
 		_wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		_connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		
-		readyDevice();
+		prepareApplication();
+
+	}
+	@Override
+	protected void onDestroy(){
+		_camera.getInstance().release();
+		super.onDestroy();
 	}
 
 	/**
 	 * Checks device features and shows the message dialog with appropriate exit
 	 * strategy (Exits when no camera is found)
 	 */
-	private void readyDevice() {
+	private void prepareApplication() {
 
 		if (!ExternalStorage.isAvailable()) {
 			_messenger.failure(R.string.externalStorageUnavailable);
@@ -107,6 +128,7 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 		_dataButton.setChecked(getMobileDataEnabled());
 		
 		if(!hasHdr()){
+			_isHdr = false;
 			_messenger.notice(R.string.hdrUnavailable);
 			_hdrButton.setClickable(false);
 			_hdrButton.setEnabled(false);
@@ -119,19 +141,7 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 	}
 
 	private boolean hasWifi() {
-		return getPackageManager()
-				.hasSystemFeature(PackageManager.FEATURE_WIFI);
-	}
-
-	private Camera getCameraInstance() {
-		Camera c = null;
-		try {
-			c = Camera.open();
-		} catch (Exception e) {
-			Log.d(TAG, "Error getting camera instance.");
-			e.getStackTrace();
-		}
-		return c;
+		return getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI);
 	}
 
 	public void toggleWifi(View view) {
@@ -179,7 +189,16 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 
 		_isTakingPictures = !_isTakingPictures;
 
-		_uploadScriptUrl = _uploadUrl.getText().toString();
+		if (!_isTakingPictures) {
+			handlerRemoveCallbacks();
+		} else {
+			setData();
+			handlerPostDelayed();
+		}
+	}
+
+	private void setData(){
+		_uploadScriptUrl = _uploadUrlEditText.getText().toString();
 
 		if (!_uploadScriptUrl.contains("http://")) {
 			_uploadScriptUrl = String.format("http://%s", _uploadScriptUrl);
@@ -194,7 +213,7 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 			_uploadScriptUrl = _uploadScriptUrl.replace("grim", "84.50.139.87");
 		}
 
-		_interval = Integer.parseInt(_intervalSeconds.getText().toString());
+		_interval = Integer.parseInt(_intervalSecondsEditText.getText().toString());
 
 		if (_interval == 0) {
 			_interval = 60;
@@ -202,14 +221,9 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 
 		Log.d(TAG, "Upload script url set to: " + _uploadScriptUrl);
 		Log.d(TAG, "Time interval set to: " + _interval);
-
-		if (!_isTakingPictures) {
-			handlerRemoveCallbacks();
-		} else {
-			handlerPostDelayed();
-		}
+		
 	}
-
+	
 	private long getIntervalInMillis() {
 		return _interval * 1000;
 	}
@@ -226,156 +240,43 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 						SysInfo.getAvailableSDCardSize(_context)));		
 	}
 	
-	private Runnable _runnable = new Runnable() {
+	private Runnable mainOperation = new Runnable() {
 		@Override
 		public void run() {
-			takePicture();
+			_camera.takePicture();
 			monitor();
 			handlerPostDelayed();
 		}
 	};
 
 	private void handlerPostDelayed() {
-		_handler.postDelayed(_runnable, getIntervalInMillis());
+		_handler.postDelayed(mainOperation, getIntervalInMillis());
 	}
 
 	private void handlerRemoveCallbacks() {
-		_handler.removeCallbacks(_runnable);
+		_handler.removeCallbacks(mainOperation);
 	}
 
 	@SuppressLint("InlinedApi")
 	private boolean hasHdr(){
 		boolean hdr = false;
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
-			Camera cam = getCameraInstance();
-			if(cam != null){
-				Parameters parameters = cam.getParameters();
+		if(_camera != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
+			if(_camera.getInstance() != null){
+				Parameters parameters = _camera.getInstance().getParameters();
 				hdr = parameters.getSupportedSceneModes().contains(Parameters.SCENE_MODE_HDR);
-				cam.release();
 			}
 		}
 		return hdr;
 	}
+
+	public boolean isHdr() {
+		return _isHdr;
+	}
+
+	public void setAppReady(boolean state) {		
+		_startStopButton.setClickable(state);
+		_startStopButton.setEnabled(state);	
+		Log.d(TAG, "Setting app ready");
+	}
 	
-	@SuppressLint("InlinedApi")
-	private void setCameraParameters(Camera camera) {
-		Camera.Parameters parameters = camera.getParameters();
-		List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
-
-		int max = 0;
-		int index = 0;
-
-		for (int i = 0; i < sizes.size(); i++) {
-			Camera.Size s = sizes.get(i);
-			int size = s.height * s.width;
-			if (size > max) {
-				index = i;
-				max = size;
-			}
-		}
-
-		parameters.setPictureSize(sizes.get(index).width, sizes.get(index).height);
-		parameters.setJpegQuality(60);
-
-		if(_isHdr && hasHdr()){
-			parameters.setSceneMode(Parameters.SCENE_MODE_HDR);
-		} else {
-			parameters.setSceneMode(Parameters.SCENE_MODE_AUTO);
-		}
-		
-		camera.setParameters(parameters);
-
-		Log.d(TAG,
-				String.format("Camera size set to: %sx%s",
-						parameters.getPictureSize().width,
-						parameters.getPictureSize().height));
-	}
-
-	@SuppressLint("NewApi")
-	private void takePicture() {
-
-		Log.d(TAG, "Start takePicture()");
-		
-		Camera camera = getCameraInstance();
-		
-		if (camera != null) {
-			try {
-				
-				setCameraParameters(camera);
-
-				Log.d(TAG, "Start of taking picture");
-				
-				SurfaceView dummy = new SurfaceView(this);
-				camera.setPreviewDisplay(dummy.getHolder());								
-				camera.startPreview();
-				camera.setPreviewCallback(this);
-				camera.setErrorCallback(this);
-				camera.autoFocus(this);
-				camera.takePicture(null, null, this);
-				Log.d(TAG, "End of taking picture");
-			} catch (Throwable e) {
-				Log.d(TAG, "Exception in takePicture: " + e.getMessage());
-				e.printStackTrace();
-			} finally {
-				camera.stopPreview();
-				camera.release();
-			}
-		} else {
-			Log.d(TAG, "No camera present!");
-		}
-	}
-
-	@Override
-	public void onPreviewFrame(byte[] bytes, Camera camera) {
-		Log.d(TAG, "Start onPreviewFrame");
-	}
-
-	@Override
-	public void onError(int i, Camera camera) {
-		Log.d(TAG, "Start onError");
-	}
-
-	@Override
-	public void onShutter() {
-		Log.d(TAG, "Start onShutter");
-	}
-
-	@Override
-	public void onPictureTaken(byte[] bytes, Camera camera) {
-		Log.d(TAG, "Start onPictureTaken");
-
-		if (bytes == null || bytes.length == 0) {
-			Log.d(TAG, "Image size is 0, nothing to save.");
-			return;
-		}
-
-		File pictureFile = _storage.createOutputImageFile();
-
-		if (pictureFile == null) {
-			Log.d(TAG, "Error creating media file, check storage permissions.");
-			return;
-		}
-
-		try {
-			Log.d(TAG, "File absolute path: " + pictureFile.getAbsolutePath());
-			FileOutputStream fos = new FileOutputStream(pictureFile);
-			fos.write(bytes);
-			fos.close();
-			new AsyncHttpPostTask(_uploadScriptUrl).execute(pictureFile);
-		} catch (FileNotFoundException e) {
-			Log.d(TAG, "File not found: " + e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			Log.d(TAG, "Error accessing file: " + e.getMessage());
-			e.printStackTrace();
-		} catch (Throwable e) {
-			Log.d(TAG, "Unknown error: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void onAutoFocus(boolean b, Camera camera) {
-		Log.d(TAG, "Autofocus");
-	}
 }

@@ -10,55 +10,55 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_gravity="center"
-        android:layout_margin="10dp">
+        android:layout_margin="10dp" >
 
         <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content" >
 
             <EditText
                 android:id="@+id/uploadUrl"
-                android:hint="@string/upload_url"
-                android:layout_span="4" />
-
+                android:layout_span="4"
+                android:hint="@string/upload_url" />
         </TableRow>
 
         <TableRow>
+
             <EditText
+                android:id="@+id/intervalSeconds"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/intervalSeconds"
-                android:hint="@string/interval_seconds"
-                android:layout_span="4" />
+                android:layout_span="4"
+                android:hint="@string/interval_seconds" />
         </TableRow>
 
         <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent" >
 
             <ToggleButton
                 android:id="@+id/startStop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="toggleAction"
                 android:textOff="@string/start"
-                android:textOn="@string/stop"
-                android:onClick="toggleAction" />
+                android:textOn="@string/stop" />
 
             <ToggleButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textOn="@string/wifiOn"
-                android:textOff="@string/wifiOff"
                 android:id="@+id/toggleWifi"
-                android:onClick="toggleWifi" />
-
-            <ToggleButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/dataOn"
-                android:textOff="@string/dataOff"
+                android:onClick="toggleWifi"
+                android:textOff="@string/wifiOff"
+                android:textOn="@string/wifiOn" />
+
+            <ToggleButton
                 android:id="@+id/toggleData"
-                android:onClick="toggleData" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="toggleData"
+                android:textOff="@string/dataOff"
+                android:textOn="@string/dataOn" />
 
             <ToggleButton
                 android:id="@+id/toggleHdr"
@@ -67,9 +67,13 @@
                 android:onClick="toggleHDR"
                 android:textOff="@string/hdrOff"
                 android:textOn="@string/hdrOn" />
-
         </TableRow>
 
+        <SurfaceView
+            android:id="@+id/surfaceView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.73" />
     </TableLayout>
 
 </LinearLayout>

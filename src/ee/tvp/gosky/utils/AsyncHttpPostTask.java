@@ -1,6 +1,5 @@
 package ee.tvp.gosky.utils;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,8 +42,8 @@ public class AsyncHttpPostTask extends AsyncTask<File, Void, String> {
 
             URL url = new URL(urlServer);
             connection = (HttpURLConnection) url.openConnection();
-
-            Log.d(TAG, "Http connection opened");
+            
+            Log.d(TAG, "Http connection opened to " + urlServer);
             
             // Allow Inputs & Outputs
             connection.setDoInput(true);
@@ -77,19 +76,17 @@ public class AsyncHttpPostTask extends AsyncTask<File, Void, String> {
                 bytesRead = fileInputStream.read(buffer, 0, bufferSize);
             }
             
-            fileInputStream.close();
-
-            Log.d(TAG, "File input stream closed");
-
             outputStream.writeBytes(lineEnd);
             outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-            outputStream.flush();
-            outputStream.close();
 
             // Responses from the server (code and message)
             Integer serverResponseCode = connection.getResponseCode();
             String serverResponseMessage = connection.getResponseMessage();
-            
+
+            fileInputStream.close();
+            outputStream.flush();
+            outputStream.close();
+
             Log.d(TAG, "Response code: " + serverResponseCode.toString());
             Log.d(TAG, "Response message: " + serverResponseMessage);
         }
@@ -97,12 +94,6 @@ public class AsyncHttpPostTask extends AsyncTask<File, Void, String> {
         {
             Log.d(TAG, "Exception uploading:" + e.getMessage());
             e.printStackTrace();
-        } finally {
-        	Log.d(TAG, "AsyncHttpPostTask executed");
-        	if(connection != null){
-        		connection.disconnect();        		
-        	}
-        	Log.d(TAG, "HTTP connection disconnected");
         }
         return null;
     }
