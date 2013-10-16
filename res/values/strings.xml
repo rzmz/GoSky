@@ -17,5 +17,6 @@
     <string name="no_wifi_present">Your device does not support WIFI networking. WIFI functionality disabled.</string>
     <string name="externalStorageUnavailable">External storage is inavailable. Using internal storage.</string>
     <string name="cameraUnavailable">External storage is inavailable. Using internal storage.</string>
+    <string name="hdrUnavailable">High Dynamic Range scene mode seems to be unavailable on this device. HDR cannot be used.</string>
     
 </resources>

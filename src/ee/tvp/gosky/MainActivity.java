@@ -6,11 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -18,12 +20,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Menu;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ToggleButton;
 import ee.tvp.gosky.utils.AsyncHttpPostTask;
+import ee.tvp.gosky.utils.Cam;
 import ee.tvp.gosky.utils.ExternalStorage;
 import ee.tvp.gosky.utils.Messenger;
 import ee.tvp.gosky.utils.SysInfo;
@@ -37,49 +39,42 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 
 	static final String TAG = MainActivity.class.getSimpleName();
 
-	private final Handler _handler = new Handler();
-	private View _view = null;
-	// time interval in seconds
-	private int _interval = 60;
-	private boolean _isTakingPictures = false;
-	private String _uploadScriptUrl = null;
+	final Handler _handler = new Handler();
 
-	private ToggleButton _wifiButton = null;
-	private WifiManager _wifiManager = null;
+	int _interval = 60;
+	boolean _isTakingPictures = false;
+	String _uploadScriptUrl = null;
 
-	private ToggleButton _dataButton = null;
-	private ToggleButton _hdrButton = null;
+	WifiManager _wifiManager = null;
+	ConnectivityManager _connectivityManager = null;
 
-	private ConnectivityManager _connectivityManager = null;
-
+	Cam _camera = null;
 	ExternalStorage _storage = null;
 
+	boolean _isHdr = false;
+	
+	// UI elements
+	EditText _uploadUrl = null;
+	EditText _intervalSeconds = null;
+	ToggleButton _dataButton = null;
+	ToggleButton _hdrButton = null;
+	ToggleButton _wifiButton = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+		
+		_uploadUrl = (EditText) findViewById(R.id.uploadUrl);
+		_intervalSeconds = (EditText) findViewById(R.id.intervalSeconds);
+		_wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
+		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
+		_hdrButton = (ToggleButton) findViewById(R.id.toggleHdr);
+		_wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		_connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		
 		readyDevice();
-
-		Runnable monitor = new Runnable() {
-			@Override
-			public void run() {
-				Log.d("MONITOR",
-						String.format("Available memory: %dMiB",
-								SysInfo.getAvailableMemory(_context)));
-				Log.d("MONITOR",
-						String.format("External storage state: %s",
-								Environment.getExternalStorageState()));
-				Log.d("MONITOR",
-						String.format("Available SD Card size: %dMiB",
-								SysInfo.getAvailableSDCardSize(_context)));
-				_handler.postDelayed(this, 5000);
-			}
-		};
-
-		_handler.postDelayed(monitor, 5000);
-
 	}
 
 	/**
@@ -96,60 +91,36 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 
 		if (!hasCamera()) {
 			_messenger.failure(R.string.cameraUnavailable);
+		} else {
+			_camera = new Cam(this);
 		}
 
-		initButtons();
-	}
-
-	private void initButtons() {
-		_wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
-
 		if (hasWifi()) {
-			_wifiManager = (WifiManager) this
-					.getSystemService(Context.WIFI_SERVICE);
 			_wifiButton.setChecked(_wifiManager.isWifiEnabled());
 		} else {
-			// no wifi present in the device at all! setting the wifi button
-			// disabled
 			_wifiButton.setClickable(false);
 			_wifiButton.setEnabled(false);
 			_messenger.notice(R.string.no_wifi_present);
 			Log.i(TAG, getResources().getString(R.string.no_wifi_present));
 		}
-		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
-		_connectivityManager = (ConnectivityManager) this
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		
 		_dataButton.setChecked(getMobileDataEnabled());
-
-		_hdrButton = (ToggleButton) findViewById(R.id.toggleHdr);
-
+		
+		if(!hasHdr()){
+			_messenger.notice(R.string.hdrUnavailable);
+			_hdrButton.setClickable(false);
+			_hdrButton.setEnabled(false);
+		}
+		
 	}
 
 	private boolean hasCamera() {
 		return getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA) && Camera.getNumberOfCameras() > 0;
 	}
 
-	// private boolean hasHDR(Camera camera) {
-	// if (Camera.hasCamera) {
-	//
-	// }
-	// }
-
 	private boolean hasWifi() {
 		return getPackageManager()
 				.hasSystemFeature(PackageManager.FEATURE_WIFI);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
 	}
 
 	private Camera getCameraInstance() {
@@ -171,7 +142,8 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 	}
 
 	public void toggleHDR(View view) {
-
+		_isHdr = !_isHdr;
+		Log.d(TAG, String.format("HDR %s",  _isHdr ? "enabled" : "disabled"));
 	}
 
 	private boolean getMobileDataEnabled() {
@@ -203,18 +175,9 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 				getMobileDataEnabled() ? "disabled" : "enabled"));
 	}
 
-	/**
-	 * This method gets called from the activity_main view when start/stop
-	 * button is pressed
-	 * 
-	 * @param view
-	 */
 	public void toggleAction(View view) {
-		_view = view;
-		_isTakingPictures = !_isTakingPictures;
 
-		EditText _uploadUrl = (EditText) findViewById(R.id.uploadUrl);
-		EditText _intervalSeconds = (EditText) findViewById(R.id.intervalSeconds);
+		_isTakingPictures = !_isTakingPictures;
 
 		_uploadScriptUrl = _uploadUrl.getText().toString();
 
@@ -251,10 +214,23 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 		return _interval * 1000;
 	}
 
+	private void monitor(){
+		Log.d("MONITOR",
+				String.format("Available memory: %dMiB",
+						SysInfo.getAvailableMemory(_context)));
+		Log.d("MONITOR",
+				String.format("External storage state: %s",
+						Environment.getExternalStorageState()));
+		Log.d("MONITOR",
+				String.format("Available SD Card size: %dMiB",
+						SysInfo.getAvailableSDCardSize(_context)));		
+	}
+	
 	private Runnable _runnable = new Runnable() {
 		@Override
 		public void run() {
 			takePicture();
+			monitor();
 			handlerPostDelayed();
 		}
 	};
@@ -267,6 +243,21 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 		_handler.removeCallbacks(_runnable);
 	}
 
+	@SuppressLint("InlinedApi")
+	private boolean hasHdr(){
+		boolean hdr = false;
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
+			Camera cam = getCameraInstance();
+			if(cam != null){
+				Parameters parameters = cam.getParameters();
+				hdr = parameters.getSupportedSceneModes().contains(Parameters.SCENE_MODE_HDR);
+				cam.release();
+			}
+		}
+		return hdr;
+	}
+	
+	@SuppressLint("InlinedApi")
 	private void setCameraParameters(Camera camera) {
 		Camera.Parameters parameters = camera.getParameters();
 		List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
@@ -283,10 +274,15 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 			}
 		}
 
-		parameters.setPictureSize(sizes.get(index).width,
-				sizes.get(index).height);
-		parameters.setJpegQuality(100);
+		parameters.setPictureSize(sizes.get(index).width, sizes.get(index).height);
+		parameters.setJpegQuality(60);
 
+		if(_isHdr && hasHdr()){
+			parameters.setSceneMode(Parameters.SCENE_MODE_HDR);
+		} else {
+			parameters.setSceneMode(Parameters.SCENE_MODE_AUTO);
+		}
+		
 		camera.setParameters(parameters);
 
 		Log.d(TAG,
@@ -304,16 +300,13 @@ public class MainActivity extends Activity implements Camera.PreviewCallback,
 		
 		if (camera != null) {
 			try {
+				
 				setCameraParameters(camera);
 
 				Log.d(TAG, "Start of taking picture");
-				SurfaceView dummy = new SurfaceView(_view.getContext());
-				camera.setPreviewDisplay(dummy.getHolder());
 				
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
-					camera.enableShutterSound(true);					
-				}
-				
+				SurfaceView dummy = new SurfaceView(this);
+				camera.setPreviewDisplay(dummy.getHolder());								
 				camera.startPreview();
 				camera.setPreviewCallback(this);
 				camera.setErrorCallback(this);
