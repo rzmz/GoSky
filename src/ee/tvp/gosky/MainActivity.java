@@ -1,6 +1,7 @@
 package ee.tvp.gosky;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -77,7 +78,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		_uploadUrlEditText = (EditText) findViewById(R.id.uploadUrl);
+		_uploadUrlEditText = (EditText) findViewById(R.id.serverName);
 		_intervalSecondsEditText = (EditText) findViewById(R.id.intervalSeconds);
 		_wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
 		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
@@ -95,6 +96,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy(){
 		_camera.getInstance().release();
+		handlerRemoveCallbacks();		
 		super.onDestroy();
 	}
 
@@ -189,11 +191,11 @@ public class MainActivity extends Activity {
 
 		_isTakingPictures = !_isTakingPictures;
 
-		if (!_isTakingPictures) {
-			handlerRemoveCallbacks();
-		} else {
+		if (_isTakingPictures) {
 			setData();
 			handlerPostDelayed();
+		} else {
+			handlerRemoveCallbacks();
 		}
 	}
 
@@ -263,7 +265,10 @@ public class MainActivity extends Activity {
 		if(_camera != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
 			if(_camera.getInstance() != null){
 				Parameters parameters = _camera.getInstance().getParameters();
-				hdr = parameters.getSupportedSceneModes().contains(Parameters.SCENE_MODE_HDR);
+				List<String> supportedSceneModes = parameters.getSupportedSceneModes();
+				if(supportedSceneModes != null && supportedSceneModes.size() > 0){
+					hdr = parameters.getSupportedSceneModes().contains(Parameters.SCENE_MODE_HDR);					
+				}
 			}
 		}
 		return hdr;

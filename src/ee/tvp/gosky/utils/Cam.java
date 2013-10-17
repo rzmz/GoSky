@@ -1,30 +1,26 @@
 package ee.tvp.gosky.utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
-import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
-import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.ShutterCallback;
+import android.hardware.Camera.Size;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import ee.tvp.gosky.MainActivity;
 
-public class Cam implements PictureCallback, ShutterCallback, AutoFocusCallback, PreviewCallback {
+public class Cam implements PictureCallback {
 	
 	static final String TAG = Cam.class.getSimpleName();
 	
 	MainActivity _activity = null;
+	boolean _haveParametersBeenSet = false;
 	
 	public Cam(MainActivity activity){
 		_activity = activity;
@@ -32,15 +28,18 @@ public class Cam implements PictureCallback, ShutterCallback, AutoFocusCallback,
 	}
 	
 	@SuppressLint("InlinedApi")
-	private void setCameraParameters(Camera camera) {
-		Camera.Parameters parameters = camera.getParameters();
-		List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
+	private void setCameraParameters() {
+		
+		Log.d(TAG, "setCameraParameters()");
+		
+		Parameters parameters = getInstance().getParameters();
+		List<Size> sizes = parameters.getSupportedPictureSizes();
 
 		int max = 0;
 		int index = 0;
 
 		for (int i = 0; i < sizes.size(); i++) {
-			Camera.Size s = sizes.get(i);
+			Size s = sizes.get(i);
 			int size = s.height * s.width;
 			if (size > max) {
 				index = i;
@@ -59,12 +58,20 @@ public class Cam implements PictureCallback, ShutterCallback, AutoFocusCallback,
 			parameters.setSceneMode(Parameters.SCENE_MODE_AUTO);
 		}
 		
-		camera.setParameters(parameters);
+		try{
+			getInstance().setParameters(parameters);
+		} catch(Throwable e){
+			Log.d(TAG, "Error setting camera parameters");
+			e.getStackTrace();
+		}
 
 		Log.d(TAG,
 				String.format("Camera size set to: %sx%s",
 						parameters.getPictureSize().width,
 						parameters.getPictureSize().height));
+		
+		_haveParametersBeenSet = true;
+		
 	}
 
 	private SurfaceView surfaceView = null;
@@ -88,6 +95,12 @@ public class Cam implements PictureCallback, ShutterCallback, AutoFocusCallback,
 				@Override
 				public void surfaceCreated(SurfaceHolder holder) {
 					_activity.setAppReady(true);
+					try {
+						getInstance().setPreviewDisplay(holder);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					Log.d("HOLDER", "surfaceCreated()");
 				}
 
@@ -100,7 +113,7 @@ public class Cam implements PictureCallback, ShutterCallback, AutoFocusCallback,
 		}
 	}
 	
-	private SurfaceHolder getSurfaceHolder(){
+	public SurfaceHolder getSurfaceHolder(){
 		if(surfaceHolder == null){
 			setSurfaceHolder();
 		}
@@ -123,16 +136,15 @@ public class Cam implements PictureCallback, ShutterCallback, AutoFocusCallback,
 	public void takePicture() {
 
 		Log.d(TAG, "Start takePicture()");
-				
+
 		if (getInstance() != null) {
+			if(!_haveParametersBeenSet){
+				setCameraParameters();
+			}
 			try {
-				setCameraParameters(getInstance());
-				getInstance().setPreviewDisplay(getSurfaceHolder());
-				getInstance().autoFocus(this);
 				getInstance().startPreview();
-				getInstance().takePicture(this, null, this);
+				getInstance().takePicture(null, null, this);
 				Log.d(TAG, "End takePicture()");
-				
 			} catch (Throwable e) {
 				Log.d(TAG, "Exception in takePicture: " + e.getMessage());
 				e.printStackTrace();
@@ -142,51 +154,14 @@ public class Cam implements PictureCallback, ShutterCallback, AutoFocusCallback,
 			Log.d(TAG, "No camera present!");
 		}
 	}
-
-	@Override
-	public void onShutter() {
-		Log.d(TAG, "Start onShutter()");		
-	}
-
-	@Override
-	public void onPreviewFrame(byte[] data, Camera camera) {
-		Log.d(TAG, "Start onPreviewFrame()");		
-	}
-
-	@Override
-	public void onAutoFocus(boolean success, Camera camera) {
-		Log.d(TAG, "Start onAutoFocus()");
-	}
 	
 	@Override
 	public void onPictureTaken(byte[] data, Camera camera) {
+		
 		Log.d(TAG, "Start onPictureTaken");
+		new AsyncSavePhotoTask(_activity).execute(data);
+		camera.stopPreview();
 
-		try {
-			if (data == null || data.length == 0) {
-				Log.d(TAG, "Image size is 0, nothing to save.");
-			} else {
-				File pictureFile = _activity.getStorage().createOutputImageFile();
-				if (pictureFile == null) {
-					Log.d(TAG, "Error creating media file, check storage permissions.");
-				} else {
-					Log.d(TAG, "File absolute path: " + pictureFile.getAbsolutePath());
-					FileOutputStream fos = new FileOutputStream(pictureFile);
-					fos.write(data);
-					fos.close();
-					new AsyncHttpPostTask(_activity.getUploadScriptUrl()).execute(pictureFile);					
-				}
-			}
-		} catch (FileNotFoundException e) {
-			Log.d(TAG, "File not found: " + e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			Log.d(TAG, "Error accessing file: " + e.getMessage());
-			e.printStackTrace();
-		} catch (Throwable e) {
-			Log.d(TAG, "Unknown error: " + e.getMessage());
-			e.printStackTrace();
-		}
 	}
 
 }

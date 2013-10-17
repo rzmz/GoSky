@@ -74,6 +74,7 @@ public class AsyncHttpPostTask extends AsyncTask<File, Void, String> {
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
                 bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                Log.d("UPLOAD", String.format("bufferSize: %d; bytesRead: %d; bytesAvailable: %d", bufferSize, bytesRead, bytesAvailable));
             }
             
             outputStream.writeBytes(lineEnd);

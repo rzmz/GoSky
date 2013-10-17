@@ -6,8 +6,8 @@
     <string name="edit_message">Message</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
-    <string name="upload_url">Server url (without http)</string>
-    <string name="interval_seconds">Time interval in seconds</string>
+    <string name="server_name">Server</string>
+    <string name="interval_seconds">Seconds</string>
     <string name="wifiOn">Wifi</string>
     <string name="wifiOff">Wifi</string>
     <string name="dataOn">Data</string>
