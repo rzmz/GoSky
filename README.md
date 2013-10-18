@@ -1,3 +1,10 @@
+### TÜ aines Tarkvaraprojekt loodav süsteem
+####Osalised:
+Rasmus Piho <rasmus79@ut.ee>  
+Andreas Orlo <orlo8@ut.ee>  
+Taavi Väljaots <taavi88@ut.ee>  
+Vlad Bezrukov <vnobody030@gmail.com>  
+
 ### Androidi rakendus, mis:
 * teeb pilti ja salvestab need sd-kaardile
 * on võimalik veebiliidese kaudu konfigureerida
