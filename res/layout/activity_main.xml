@@ -1,60 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:layout_gravity="left"
-    android:layout_margin="5dp" >
-
-    <TableRow>
-
-        <EditText
-            android:id="@+id/serverName"
-            android:layout_weight=".5"
-            android:hint="@string/server_name"
-            android:singleLine="true" />
-
-        <EditText
-            android:id="@+id/intervalSeconds"
-            android:layout_weight=".5"
-            android:hint="@string/interval_seconds"
-            android:singleLine="true" />
-    </TableRow>
-
-    <TableRow>
-
-        <ToggleButton
-            android:id="@+id/startStop"
-            android:onClick="toggleAction"
-            android:textOff="@string/start"
-            android:textOn="@string/stop"
-            android:layout_weight=".25" />
-
-        <ToggleButton
-            android:id="@+id/toggleWifi"
-            android:onClick="toggleWifi"
-            android:textOff="@string/wifiOff"
-            android:textOn="@string/wifiOn"
-            android:layout_weight=".25" />
-
-        <ToggleButton
-            android:id="@+id/toggleData"
-            android:onClick="toggleData"
-            android:textOff="@string/dataOff"
-            android:textOn="@string/dataOn"
-            android:layout_weight=".25" />
-
-        <ToggleButton
-            android:id="@+id/toggleHdr"
-            android:onClick="toggleHDR"
-            android:textOff="@string/hdrOff"
-            android:textOn="@string/hdrOn"
-            android:layout_weight=".25" />
-    </TableRow>
+    android:layout_height="fill_parent" >
 
     <SurfaceView
         android:id="@+id/surfaceView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.8" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-</TableLayout>
+</FrameLayout>
