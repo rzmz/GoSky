@@ -20,8 +20,8 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ToggleButton;
-import ee.tvp.gosky.utils.Cam;
-import ee.tvp.gosky.utils.ExternalStorage;
+import ee.tvp.gosky.utils.CameraWrapper;
+import ee.tvp.gosky.utils.StorageWrapper;
 import ee.tvp.gosky.utils.Messenger;
 import ee.tvp.gosky.utils.SysInfo;
 
@@ -43,8 +43,8 @@ public class MainActivity extends Activity {
 	WifiManager _wifiManager = null;
 	ConnectivityManager _connectivityManager = null;
 
-	Cam _camera = null;
-	ExternalStorage _storage = null;
+	CameraWrapper _camera = null;
+	StorageWrapper _storage = null;
 
 	boolean _isHdr = false;
 	
@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
 		return _context;
 	}
 	
-	public ExternalStorage getStorage(){
+	public StorageWrapper getStorage(){
 		return _storage;
 	}
 	
@@ -101,21 +101,20 @@ public class MainActivity extends Activity {
 	}
 
 	/**
-	 * Checks device features and shows the message dialog with appropriate exit
-	 * strategy (Exits when no camera is found)
+	 * Checks device features and shows notice when no camera is found
 	 */
 	private void prepareApplication() {
 
-		if (!ExternalStorage.isAvailable()) {
+		if (!StorageWrapper.isAvailable()) {
 			_messenger.failure(R.string.externalStorageUnavailable);
 		} else {
-			_storage = new ExternalStorage(this);
+			_storage = new StorageWrapper(this);
 		}
 
 		if (!hasCamera()) {
 			_messenger.failure(R.string.cameraUnavailable);
 		} else {
-			_camera = new Cam(this);
+			_camera = new CameraWrapper(this);
 		}
 
 		if (hasWifi()) {
