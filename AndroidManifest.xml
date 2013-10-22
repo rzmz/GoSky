@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="11"
         android:targetSdkVersion="18" />
 
     <!-- The application uses the device's camera. If the device supports multiple cameras, the application uses the camera that facing away from the screen. -->
@@ -38,6 +38,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
+        <activity
+            android:name="ee.tvp.gosky.SettingsActivity"
+            android:label="@string/menu_settings"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.CHOOSER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        </application>
 
 </manifest>

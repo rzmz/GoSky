@@ -1,14 +1,18 @@
 package ee.tvp.gosky;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
+import android.hardware.Camera.Size;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -16,18 +20,30 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import ee.tvp.gosky.utils.CameraWrapper;
 import ee.tvp.gosky.utils.Messenger;
+import ee.tvp.gosky.utils.PreferencesWrapper;
 import ee.tvp.gosky.utils.StorageWrapper;
 import ee.tvp.gosky.utils.SysInfo;
 
 public class MainActivity extends Activity {
-
+	
+	private static final int RESULT_SETTINGS = 1;
+	 
+	private PreferencesWrapper _preferences = null;
+	private SharedPreferences _settings = null;
+	
 	final Context _context = this;
 	final Messenger _messenger = new Messenger(_context);
 
@@ -47,13 +63,13 @@ public class MainActivity extends Activity {
 	CameraWrapper _camera = null;
 	StorageWrapper _storage = null;
 
-	boolean _isHdr = false;
+	String _serverUrl = null;
+	String _cameraSize = null;
+	String _minimumCameraSize = null;
 	
 	// UI elements
 	EditText _uploadUrlEditText = null;
-	EditText _intervalSecondsEditText = null;
 	ToggleButton _dataButton = null;
-	ToggleButton _hdrButton = null;
 	ToggleButton _wifiButton = null;
 	ToggleButton _startStopButton = null;
 	
@@ -74,31 +90,119 @@ public class MainActivity extends Activity {
 	}
 	
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.settings, menu);
+		return true;
+	}
+
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+ 
+        case R.id.menu_settings:
+            Intent i = new Intent(this, SettingsActivity.class);
+            startActivityForResult(i, RESULT_SETTINGS);
+            break;
+ 
+        }
+ 
+        return true;
+    }
+ 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+ 
+        switch (requestCode) {
+        case RESULT_SETTINGS:
+        	Log.d(TAG, "something, something, something dark side!");
+            break;
+ 
+        }
+ 
+    }
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		setDefaults();
 		
 		_uploadUrlEditText = (EditText) findViewById(R.id.serverName);
-		_intervalSecondsEditText = (EditText) findViewById(R.id.intervalSeconds);
 		_wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
 		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
-		_hdrButton = (ToggleButton) findViewById(R.id.toggleHdr);
 		_startStopButton = (ToggleButton) findViewById(R.id.startStop);
 		_startStopButton.setEnabled(false);
 		_startStopButton.setClickable(false);
 		_surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
 		_wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		_connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		
+				
 		prepareApplication();
+		wireSpinners();
 
 	}
+	
+	void setDefaults(){
+		
+		if(_preferences == null)
+			_preferences = new PreferencesWrapper(this);
+		if(_settings == null)
+			_settings = _preferences.getSettings();
+
+		_serverUrl = _settings.getString("serverUrl", "");
+		_interval = _settings.getInt("interval", 5);
+		_cameraSize = _settings.getString("cameraSize", "");
+	}
+		
 	@Override
 	protected void onDestroy(){
 		_camera.getInstance().release();
 		handlerRemoveCallbacks();		
 		super.onDestroy();
+	}
+		
+	private List<String> getCameraSizesList(){
+		List<Size> sizes = _camera.getInstance().getParameters().getSupportedPictureSizes();		
+		ArrayList<String> result = new ArrayList<String>();		
+		for(Size size : sizes){
+			result.add(String.format("%dx%d", size.width, size.height));
+		}		
+		return result;
+	}
+	
+	void wireSpinners(){
+		Spinner pictureSettingsSpinner = (Spinner) findViewById(R.id.pictureSizeSpinner);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getCameraSizesList());
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		pictureSettingsSpinner.setAdapter(adapter);
+		pictureSettingsSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+				String selectedItem = (String) parent.getItemAtPosition(pos);
+				Toast.makeText(getContext(), String.format("Size set to %s", selectedItem), Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				Toast.makeText(getContext(), "Nothing selected, using default", Toast.LENGTH_SHORT).show();				
+			}
+			
+		});
+		Spinner intervalSpinner = (Spinner) findViewById(R.id.intervalSpinner);
+		intervalSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				Toast.makeText(getContext(), "No change, using default", Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 	/**
@@ -130,10 +234,7 @@ public class MainActivity extends Activity {
 		_dataButton.setChecked(getMobileDataEnabled());
 		
 		if(!hasHdr()){
-			_isHdr = false;
 			_messenger.notice(R.string.hdrUnavailable);
-			_hdrButton.setClickable(false);
-			_hdrButton.setEnabled(false);
 		}
 		
 	}
@@ -152,12 +253,6 @@ public class MainActivity extends Activity {
 				String.format("Wifi connection %s",
 						_wifiManager.isWifiEnabled() ? "disabled" : "enabled"));
 		Toast.makeText(this, String.format("%s WIFI", (_wifiManager.isWifiEnabled() ? "Disabling" : "Enabling")), Toast.LENGTH_SHORT).show();
-	}
-
-	public void toggleHDR(View view) {
-		_isHdr = !_isHdr;
-		Log.d(TAG, String.format("HDR %s",  _isHdr ? "enabled" : "disabled"));
-		Toast.makeText(this, "HDR " + (_isHdr ? "enabled" : "disabled"), Toast.LENGTH_SHORT).show();
 	}
 
 	private boolean getMobileDataEnabled() {
@@ -223,7 +318,8 @@ public class MainActivity extends Activity {
 			_uploadScriptUrl = _uploadScriptUrl.replace("grim", "84.50.139.87");
 		}
 
-		_interval = Integer.parseInt(_intervalSecondsEditText.getText().toString());
+		// todo: hardcoded interval
+		_interval = 5;
 
 		if (_interval == 0) {
 			_interval = 60;
@@ -280,10 +376,6 @@ public class MainActivity extends Activity {
 			}
 		}
 		return hdr;
-	}
-
-	public boolean isHdr() {
-		return _isHdr;
 	}
 
 	public void setAppReady(boolean state) {		

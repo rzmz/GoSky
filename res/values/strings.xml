@@ -14,9 +14,29 @@
     <string name="dataOff">Data</string>
     <string name="hdrOn">HDR</string>
     <string name="hdrOff">HDR</string>
+    <string name="nightModeOn">Night</string>
+    <string name="nightModeOff">Night</string>
     <string name="no_wifi_present">Your device does not support WIFI networking. WIFI functionality disabled.</string>
     <string name="externalStorageUnavailable">External storage is inavailable. Using internal storage.</string>
     <string name="cameraUnavailable">External storage is inavailable. Using internal storage.</string>
     <string name="hdrUnavailable">High Dynamic Range scene mode seems to be unavailable on this device. HDR cannot be used.</string>
+
+    <string name="pictureSize">Picture Size</string>
+    <string name="sceneMode">Scene Mode</string>
+    
+    <string-array name="secondsArray">
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+    
+    <!-- prefs -->
+    <string name="pref_server_url">Server URL</string>
+    <string name="pref_server_url_title">Enter server URL</string>
+    <string name="pref_server_url_summary">Server url where your upload script is installed to.</string>
+    
+    <!-- menu -->
+    <string name="menu_settings">Settings</string>
     
 </resources>

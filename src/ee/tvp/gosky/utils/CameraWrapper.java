@@ -54,12 +54,6 @@ public class CameraWrapper implements PictureCallback {
 		parameters.setPictureFormat(ImageFormat.JPEG);
 		parameters.setJpegQuality(60);
 		parameters.setFlashMode(Parameters.FLASH_MODE_OFF);
-
-		if(_activity.isHdr()){
-			parameters.setSceneMode(Parameters.SCENE_MODE_HDR);
-		} else {
-			parameters.setSceneMode(Parameters.SCENE_MODE_AUTO);
-		}
 		
 		try{
 			getInstance().setParameters(parameters);

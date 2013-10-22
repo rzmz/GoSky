@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_gravity="left"
-    android:layout_margin="5dp" >
+    android:layout_margin="2dp" >
 
     <TableRow>
 
@@ -13,11 +13,12 @@
             android:hint="@string/server_name"
             android:singleLine="true" />
 
-        <EditText
-            android:id="@+id/intervalSeconds"
-            android:layout_weight=".5"
-            android:hint="@string/interval_seconds"
-            android:singleLine="true" />
+		<Spinner
+		    android:id="@+id/intervalSpinner"
+		    android:layout_height="match_parent"
+		    android:layout_weight=".5"
+		    android:entries="@array/secondsArray" />
+
     </TableRow>
 
     <TableRow>
@@ -27,30 +28,40 @@
             android:onClick="toggleAction"
             android:textOff="@string/start"
             android:textOn="@string/stop"
-            android:layout_weight=".25" />
+            android:layout_weight=".20" />
 
         <ToggleButton
             android:id="@+id/toggleWifi"
             android:onClick="toggleWifi"
             android:textOff="@string/wifiOff"
             android:textOn="@string/wifiOn"
-            android:layout_weight=".25" />
+            android:layout_weight=".20" />
 
         <ToggleButton
             android:id="@+id/toggleData"
             android:onClick="toggleData"
             android:textOff="@string/dataOff"
             android:textOn="@string/dataOn"
-            android:layout_weight=".25" />
+            android:layout_weight=".20" />
+        
+        </TableRow>
 
-        <ToggleButton
-            android:id="@+id/toggleHdr"
-            android:onClick="toggleHDR"
-            android:textOff="@string/hdrOff"
-            android:textOn="@string/hdrOn"
-            android:layout_weight=".25" />
+    <TableRow>
+        <TextView android:text="@string/pictureSize" />
+		<Spinner
+	        android:id="@+id/pictureSizeSpinner"
+	        android:layout_width="fill_parent"
+	        android:layout_height="match_parent" />
     </TableRow>
 
+    <TableRow>
+        <TextView android:text="@string/sceneMode" />        
+	    <Spinner
+	        android:id="@+id/sceneModeSpinner"
+	        android:layout_width="fill_parent"
+	        android:layout_height="match_parent" />
+    </TableRow>
+    
     <SurfaceView
         android:id="@+id/surfaceView1"
         android:layout_width="wrap_content"
