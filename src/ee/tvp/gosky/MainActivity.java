@@ -19,10 +19,11 @@ import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 import ee.tvp.gosky.utils.CameraWrapper;
-import ee.tvp.gosky.utils.StorageWrapper;
 import ee.tvp.gosky.utils.Messenger;
+import ee.tvp.gosky.utils.StorageWrapper;
 import ee.tvp.gosky.utils.SysInfo;
 
 public class MainActivity extends Activity {
@@ -105,7 +106,7 @@ public class MainActivity extends Activity {
 	 */
 	private void prepareApplication() {
 
-		if (!StorageWrapper.isAvailable()) {
+		if (!StorageWrapper.isStorageAvailable()) {
 			_messenger.failure(R.string.externalStorageUnavailable);
 		} else {
 			_storage = new StorageWrapper(this);
@@ -150,11 +151,13 @@ public class MainActivity extends Activity {
 		Log.d(TAG,
 				String.format("Wifi connection %s",
 						_wifiManager.isWifiEnabled() ? "disabled" : "enabled"));
+		Toast.makeText(this, String.format("%s WIFI", (_wifiManager.isWifiEnabled() ? "Disabling" : "Enabling")), Toast.LENGTH_SHORT).show();
 	}
 
 	public void toggleHDR(View view) {
 		_isHdr = !_isHdr;
 		Log.d(TAG, String.format("HDR %s",  _isHdr ? "enabled" : "disabled"));
+		Toast.makeText(this, "HDR " + (_isHdr ? "enabled" : "disabled"), Toast.LENGTH_SHORT).show();
 	}
 
 	private boolean getMobileDataEnabled() {
@@ -184,6 +187,9 @@ public class MainActivity extends Activity {
 		setMobileDataEnabled(!getMobileDataEnabled());
 		Log.d(TAG, String.format("Data connection %s",
 				getMobileDataEnabled() ? "disabled" : "enabled"));
+		
+		Toast.makeText(this, String.format("%s mobile data", (getMobileDataEnabled() ? "Disabling" : "Enabling")), Toast.LENGTH_SHORT).show();
+
 	}
 
 	public void toggleAction(View view) {
@@ -196,6 +202,9 @@ public class MainActivity extends Activity {
 		} else {
 			handlerRemoveCallbacks();
 		}
+		
+		Toast.makeText(this, "Application " + (_isTakingPictures ? "started" : "stopped"), Toast.LENGTH_SHORT).show();
+
 	}
 
 	private void setData(){

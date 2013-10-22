@@ -14,10 +14,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import ee.tvp.gosky.MainActivity;
+import ee.tvp.gosky.tasks.AsyncSavePhotoTask;
+import ee.tvp.gosky.tasks.AsyncUploadTask;
 
 public class CameraWrapper implements PictureCallback {
 	
 	static final String TAG = CameraWrapper.class.getSimpleName();
+	static boolean SaveOnCard = false;
 	
 	MainActivity _activity = null;
 	boolean _haveParametersBeenSet = false;
@@ -49,7 +52,7 @@ public class CameraWrapper implements PictureCallback {
 
 		parameters.setPictureSize(sizes.get(index).width, sizes.get(index).height);
 		parameters.setPictureFormat(ImageFormat.JPEG);
-		parameters.setJpegQuality(100);
+		parameters.setJpegQuality(60);
 		parameters.setFlashMode(Parameters.FLASH_MODE_OFF);
 
 		if(_activity.isHdr()){
@@ -159,7 +162,13 @@ public class CameraWrapper implements PictureCallback {
 	public void onPictureTaken(byte[] data, Camera camera) {
 		
 		Log.d(TAG, "Start onPictureTaken");
-		new AsyncSavePhotoTask(_activity).execute(data);
+		if(SaveOnCard){
+			new AsyncSavePhotoTask(_activity).execute(data);			
+		} else {
+			String serverUrl = _activity.getUploadScriptUrl();
+			String fileName = _activity.getStorage().getOutputImageFileName();
+			new AsyncUploadTask(serverUrl, fileName).execute(data);
+		}
 		camera.stopPreview();
 
 	}

@@ -19,7 +19,7 @@ public class StorageWrapper {
 		_context = context;
 	}
 	
-	public static boolean isAvailable() {
+	public static boolean isStorageAvailable() {
 		return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
 	}
 
@@ -30,6 +30,12 @@ public class StorageWrapper {
 	File getAppDirectory(){
 		return _context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
 	}
+	
+	public String getOutputImageFileName(){
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        return String.format("IMG_%s.jpg", timeStamp);
+	}
+	
     /*
      *  Creates a new file for saving an image in apps external files directory
      *  Creates also the directory if it is not present
@@ -38,7 +44,7 @@ public class StorageWrapper {
 
     	File mediaFile = null;
     	
-    	if(StorageWrapper.isAvailable()){
+    	if(StorageWrapper.isStorageAvailable()){
     		
             File mediaStorageDir = new File(getpublicDirectory(), _context.getPackageName());
 
@@ -48,8 +54,8 @@ public class StorageWrapper {
                     return null;
                 }
             }
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
+            
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + getOutputImageFileName());
     	}
 
     	return mediaFile;

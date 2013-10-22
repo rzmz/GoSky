@@ -1,4 +1,4 @@
-package ee.tvp.gosky.utils;
+package ee.tvp.gosky.tasks;
 
 import java.io.File;
 import java.io.FileNotFoundException;
