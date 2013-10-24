@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/pref_general" >
+        <EditTextPreference
+            android:key="prefServerUrl"
+            android:summary="@string/pref_serverUrl_summary"
+            android:title="@string/pref_serverUrl_title" />
+
+        <ListPreference
+            android:defaultValue="@string/pref_intervalDefault"
+            android:entries="@array/pref_intervalNames"
+            android:entryValues="@array/pref_intervalValues"
+            android:key="prefInterval"
+            android:summary="@string/pref_interval_summary"
+            android:title="@string/pref_interval_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_camera" >
+        <ListPreference
+            android:key="pictureSizePref"
+            android:summary="@string/pref_pictureSize_summary"
+            android:title="@string/pref_pictureSize_title" />
+        <ListPreference
+            android:key="sceneModePref"
+            android:summary="@string/pref_sceneMode_summary"
+            android:title="@string/pref_sceneMode_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

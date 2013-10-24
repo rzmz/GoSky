@@ -1,7 +1,6 @@
 package ee.tvp.gosky;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -12,7 +11,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
-import android.hardware.Camera.Size;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -24,11 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import ee.tvp.gosky.utils.CameraWrapper;
@@ -91,7 +85,7 @@ public class MainActivity extends Activity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.settings, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
@@ -100,7 +94,7 @@ public class MainActivity extends Activity {
         switch (item.getItemId()) {
  
         case R.id.menu_settings:
-            Intent i = new Intent(this, SettingsActivity.class);
+            Intent i = new Intent(this, Preferences.class);
             startActivityForResult(i, RESULT_SETTINGS);
             break;
  
@@ -129,7 +123,6 @@ public class MainActivity extends Activity {
 
 		setDefaults();
 		
-		_uploadUrlEditText = (EditText) findViewById(R.id.serverName);
 		_wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
 		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
 		_startStopButton = (ToggleButton) findViewById(R.id.startStop);
@@ -158,51 +151,42 @@ public class MainActivity extends Activity {
 		
 	@Override
 	protected void onDestroy(){
-		_camera.getInstance().release();
+		CameraWrapper.getInstance().release();
 		handlerRemoveCallbacks();		
 		super.onDestroy();
 	}
-		
-	private List<String> getCameraSizesList(){
-		List<Size> sizes = _camera.getInstance().getParameters().getSupportedPictureSizes();		
-		ArrayList<String> result = new ArrayList<String>();		
-		for(Size size : sizes){
-			result.add(String.format("%dx%d", size.width, size.height));
-		}		
-		return result;
-	}
-	
+
 	void wireSpinners(){
-		Spinner pictureSettingsSpinner = (Spinner) findViewById(R.id.pictureSizeSpinner);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getCameraSizesList());
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		pictureSettingsSpinner.setAdapter(adapter);
-		pictureSettingsSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-				String selectedItem = (String) parent.getItemAtPosition(pos);
-				Toast.makeText(getContext(), String.format("Size set to %s", selectedItem), Toast.LENGTH_SHORT).show();
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				Toast.makeText(getContext(), "Nothing selected, using default", Toast.LENGTH_SHORT).show();				
-			}
-			
-		});
-		Spinner intervalSpinner = (Spinner) findViewById(R.id.intervalSpinner);
-		intervalSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				Toast.makeText(getContext(), "No change, using default", Toast.LENGTH_SHORT).show();
-			}
-		});
+//		Spinner pictureSettingsSpinner = (Spinner) findViewById(R.id.pictureSizeSpinner);
+//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getCameraSizesList());
+//		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//		pictureSettingsSpinner.setAdapter(adapter);
+//		pictureSettingsSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+//
+//			@Override
+//			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+//				String selectedItem = (String) parent.getItemAtPosition(pos);
+//				Toast.makeText(getContext(), String.format("Size set to %s", selectedItem), Toast.LENGTH_SHORT).show();
+//			}
+//
+//			@Override
+//			public void onNothingSelected(AdapterView<?> parent) {
+//				Toast.makeText(getContext(), "Nothing selected, using default", Toast.LENGTH_SHORT).show();				
+//			}
+//			
+//		});
+//		Spinner intervalSpinner = (Spinner) findViewById(R.id.intervalSpinner);
+//		intervalSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+//
+//			@Override
+//			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+//			}
+//
+//			@Override
+//			public void onNothingSelected(AdapterView<?> parent) {
+//				Toast.makeText(getContext(), "No change, using default", Toast.LENGTH_SHORT).show();
+//			}
+//		});
 	}
 
 	/**
@@ -367,8 +351,8 @@ public class MainActivity extends Activity {
 	private boolean hasHdr(){
 		boolean hdr = false;
 		if(_camera != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
-			if(_camera.getInstance() != null){
-				Parameters parameters = _camera.getInstance().getParameters();
+			if(CameraWrapper.getInstance() != null){
+				Parameters parameters = CameraWrapper.getInstance().getParameters();
 				List<String> supportedSceneModes = parameters.getSupportedSceneModes();
 				if(supportedSceneModes != null && supportedSceneModes.size() > 0){
 					hdr = parameters.getSupportedSceneModes().contains(Parameters.SCENE_MODE_HDR);					

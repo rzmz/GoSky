@@ -21,22 +21,35 @@
     <string name="cameraUnavailable">External storage is inavailable. Using internal storage.</string>
     <string name="hdrUnavailable">High Dynamic Range scene mode seems to be unavailable on this device. HDR cannot be used.</string>
 
-    <string name="pictureSize">Picture Size</string>
-    <string name="sceneMode">Scene Mode</string>
-    
-    <string-array name="secondsArray">
+    <!-- General prefs -->
+    <string name="pref_general">General</string>
+    <string name="pref_serverUrl_title">Enter server URL</string>
+    <string name="pref_serverUrl_summary">Server url where your upload script is installed to.</string>
+    <string name="pref_interval_title">Select interval</string>
+    <string name="pref_interval_summary">Select interval in seconds.</string>
+    <string name="pref_intervalDefault">5</string>
+
+    <string-array name="pref_intervalValues">
         <item>5</item>
         <item>10</item>
         <item>30</item>
         <item>60</item>
     </string-array>
-    
-    <!-- prefs -->
-    <string name="pref_server_url">Server URL</string>
-    <string name="pref_server_url_title">Enter server URL</string>
-    <string name="pref_server_url_summary">Server url where your upload script is installed to.</string>
+    <string-array name="pref_intervalNames">
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>60 seconds</item>
+    </string-array>
+
+    <!-- Camera prefs -->
+    <string name="pref_camera">Camera settings</string>
+    <string name="pref_pictureSize_title">Picture size</string>
+    <string name="pref_pictureSize_summary">Select the picture size for snapshots</string>
+    <string name="pref_sceneMode_title">Scene mode</string>
+    <string name="pref_sceneMode_summary">Select the scene mode for snapshots</string>
     
     <!-- menu -->
     <string name="menu_settings">Settings</string>
-    
+
 </resources>

@@ -7,22 +7,6 @@
 
     <TableRow>
 
-        <EditText
-            android:id="@+id/serverName"
-            android:layout_weight=".5"
-            android:hint="@string/server_name"
-            android:singleLine="true" />
-
-		<Spinner
-		    android:id="@+id/intervalSpinner"
-		    android:layout_height="match_parent"
-		    android:layout_weight=".5"
-		    android:entries="@array/secondsArray" />
-
-    </TableRow>
-
-    <TableRow>
-
         <ToggleButton
             android:id="@+id/startStop"
             android:onClick="toggleAction"
@@ -45,22 +29,6 @@
             android:layout_weight=".20" />
         
         </TableRow>
-
-    <TableRow>
-        <TextView android:text="@string/pictureSize" />
-		<Spinner
-	        android:id="@+id/pictureSizeSpinner"
-	        android:layout_width="fill_parent"
-	        android:layout_height="match_parent" />
-    </TableRow>
-
-    <TableRow>
-        <TextView android:text="@string/sceneMode" />        
-	    <Spinner
-	        android:id="@+id/sceneModeSpinner"
-	        android:layout_width="fill_parent"
-	        android:layout_height="match_parent" />
-    </TableRow>
     
     <SurfaceView
         android:id="@+id/surfaceView1"

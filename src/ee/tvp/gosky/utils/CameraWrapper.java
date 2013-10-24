@@ -117,8 +117,8 @@ public class CameraWrapper implements PictureCallback {
 		return surfaceHolder;
 	}
 
-	private Camera _cameraInstance = null;	
-	public Camera getInstance(){
+	private static Camera _cameraInstance = null;
+	public static Camera getInstance(){
 		if(_cameraInstance == null){
 			try {
 				_cameraInstance = Camera.open();
@@ -128,6 +128,22 @@ public class CameraWrapper implements PictureCallback {
 			}
 		}
 		return _cameraInstance;
+	}
+		
+	private static Parameters _parameters = null;
+	public static Parameters getParameters(){
+		if(_parameters == null){
+			_parameters = getInstance().getParameters();
+		}
+		return _parameters;
+	}
+	
+	private static List<String> _supportedSceneModes = null;
+	public static List<String> getSupportedSceneModes(){
+		if(_supportedSceneModes == null){
+			_supportedSceneModes = getParameters().getSupportedSceneModes();
+		}
+		return _supportedSceneModes;
 	}
 	
 	public void takePicture() {
