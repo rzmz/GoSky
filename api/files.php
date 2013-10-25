@@ -13,10 +13,10 @@ if(isset($_GET['dir']) && $_GET['dir'] != ""){
       foreach ($files as $file) {
         if(!is_dir($entry = $dir . $file)){
           $result['files'][]['name'] = $file;
+          $result['files'][]['path'] = str_replace("../", "", $dir) . $file;
         }
       }
       echo json_encode($result);
-      
     } 
   }
 }
