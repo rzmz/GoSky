@@ -48,7 +48,8 @@ if($_FILES && sizeof($_FILES) > 0){
   if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target_path1)) {
       $data['result'] = "Success";
       $target_path2 = $target_path2 . basename($_FILES['uploadedfile']['name']);
-      $data['shell'] = shell_exec('./dewrapper -R 1200 -inte 1080 -fin ' . $target_path1 . ' -fout ' . $target_path2);
+      //$data['shell'] = shell_exec('./dewrapper -R 1200 -inte 1080 -fin ' . $target_path1 . ' -fout ' . $target_path2);
+      $data['shell'] = shell_exec('convert ' . $target_path1 . ' +distort DePolar 0 ' . $target_path2);
   } else {
       $data['result'] =  "Failure";
   }
@@ -58,7 +59,7 @@ $xml = new SimpleXMLElement("<?xml version=\"1.0\"?><uploadResult></uploadResult
 array_to_xml($data, $xml);
 print_r($data);
 $textual = ob_get_contents();
-file_put_contents("log.txt", $textual, FILE_APPEND);
+file_put_contents("../../upload_log.txt", $textual, FILE_APPEND);
 ob_end_clean();
 
 print $xml->asXML();
