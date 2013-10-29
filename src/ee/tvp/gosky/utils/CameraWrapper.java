@@ -14,6 +14,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import ee.tvp.gosky.MainActivity;
+import ee.tvp.gosky.Preferences;
 import ee.tvp.gosky.tasks.AsyncSavePhotoTask;
 import ee.tvp.gosky.tasks.AsyncUploadTask;
 
@@ -38,22 +39,17 @@ public class CameraWrapper implements PictureCallback {
 		Parameters parameters = getInstance().getParameters();
 		List<Size> sizes = parameters.getSupportedPictureSizes();
 
-		int max = 0;
-		int index = 0;
-
-		for (int i = 0; i < sizes.size(); i++) {
-			Size s = sizes.get(i);
-			int size = s.height * s.width;
-			if (size > max) {
-				index = i;
-				max = size;
-			}
-		}
-
+		String pictureSizeIndex = _activity.getPref().getString(Preferences.PICTURE_SIZE_PREF, "0");
+		int index = Integer.parseInt(pictureSizeIndex);
+		
 		parameters.setPictureSize(sizes.get(index).width, sizes.get(index).height);
 		parameters.setPictureFormat(ImageFormat.JPEG);
 		parameters.setJpegQuality(60);
 		parameters.setFlashMode(Parameters.FLASH_MODE_OFF);
+
+		List<String> sceneModes = getSupportedSceneModes();
+		String sceneMode = _activity.getPref().getString(Preferences.SCENE_MODE_PREF, sceneModes.get(0));
+		parameters.setSceneMode(sceneMode);
 		
 		try{
 			getInstance().setParameters(parameters);
@@ -67,6 +63,8 @@ public class CameraWrapper implements PictureCallback {
 						parameters.getPictureSize().width,
 						parameters.getPictureSize().height));
 		
+		Log.d(TAG, String.format("Scene mode set to: %s", parameters.getSceneMode()));
+		
 		_haveParametersBeenSet = true;
 		
 	}
@@ -76,37 +74,40 @@ public class CameraWrapper implements PictureCallback {
 	private void setSurfaceHolder(){
 		if(surfaceView == null){
 			surfaceView = _activity.getSurfaceView();
-			Log.d("HOLDER", "New surfaceview created");
 		}
 		if(surfaceHolder == null){
 			surfaceHolder = surfaceView.getHolder();
-			Log.d("HOLDER", "Surfaceholder created");
 
 			surfaceHolder.addCallback(new Callback(){
 				@Override
 				public void surfaceChanged(SurfaceHolder holder,
 						int format, int width, int height) {
+					setPreviewDisplay(holder);
 					Log.d("HOLDER", "surfaceChanged()");
 				}
 
 				@Override
 				public void surfaceCreated(SurfaceHolder holder) {
-					_activity.setAppReady(true);
-					try {
-						getInstance().setPreviewDisplay(holder);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					setPreviewDisplay(holder);
 					Log.d("HOLDER", "surfaceCreated()");
 				}
 
 				@Override
 				public void surfaceDestroyed(SurfaceHolder holder) {
+					setPreviewDisplay(holder);
 					Log.d("HOLDER", "surfaceDestroyed()");
-				}
-				
+				}				
 			});
+		}
+	}
+	
+	private void setPreviewDisplay(SurfaceHolder holder){
+		try {
+			getInstance().setPreviewDisplay(holder);
+			_activity.setAppReady(true);
+		} catch (IOException e) {
+			Log.e(TAG, "Cannot set preview display");
+			e.printStackTrace();
 		}
 	}
 	

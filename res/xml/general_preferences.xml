@@ -17,11 +17,11 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_camera" >
         <ListPreference
-            android:key="pictureSizePref"
+            android:key="prefPictureSize"
             android:summary="@string/pref_pictureSize_summary"
             android:title="@string/pref_pictureSize_title" />
         <ListPreference
-            android:key="sceneModePref"
+            android:key="prefSceneMode"
             android:summary="@string/pref_sceneMode_summary"
             android:title="@string/pref_sceneMode_title" />
     </PreferenceCategory>

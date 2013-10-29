@@ -15,18 +15,13 @@ public class GoSkyPreferenceFragment extends PreferenceFragment {
 
 	public static final String TAG = GoSkyPreferenceFragment.class.getSimpleName();
 	
-	public static final String SERVER_URL_PREF = "serverUrlPref";
-	public static final String INTERVAL_PREF = "intervalPref";	
-	public static final String SCENE_MODE_PREF = "sceneModePref";
-	public static final String PICTURE_SIZE_PREF = "pictureSizePref";
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//setPreferenceScreen(cameraPreferencesScreen());
 		addPreferencesFromResource(R.xml.general_preferences);
 		
-		final ListPreference pictureSizePreference = (ListPreference) findPreference(PICTURE_SIZE_PREF);
+		final ListPreference pictureSizePreference = (ListPreference) findPreference(Preferences.PICTURE_SIZE_PREF);
 		setPicturePreferenceData(pictureSizePreference);
 		pictureSizePreference.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 
@@ -38,7 +33,7 @@ public class GoSkyPreferenceFragment extends PreferenceFragment {
 			
 		});
 		
-		final ListPreference sceneModePreference = (ListPreference) findPreference(SCENE_MODE_PREF);
+		final ListPreference sceneModePreference = (ListPreference) findPreference(Preferences.SCENE_MODE_PREF);
 		setSceneModePreferenceData(sceneModePreference);
 		sceneModePreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			
@@ -74,8 +69,8 @@ public class GoSkyPreferenceFragment extends PreferenceFragment {
 			String[] values = new String[pictureSizes.size()];
 			int index = 0;
 			for(Size size : pictureSizes){
-				keys[index] = Integer.toString(size.hashCode());
-				values[index] = String.format("%dx%d", size.width, size.height);
+				keys[index] = Integer.toString(index);
+				values[index] = String.format("[%d] %dx%d", index, size.width, size.height);
 				index++;
 			}
 			pref.setEntryValues(keys);

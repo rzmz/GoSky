@@ -17,27 +17,24 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import ee.tvp.gosky.utils.CameraWrapper;
 import ee.tvp.gosky.utils.Messenger;
-import ee.tvp.gosky.utils.PreferencesWrapper;
 import ee.tvp.gosky.utils.StorageWrapper;
 import ee.tvp.gosky.utils.SysInfo;
 
 public class MainActivity extends Activity {
 	
 	private static final int RESULT_SETTINGS = 1;
-	 
-	private PreferencesWrapper _preferences = null;
-	private SharedPreferences _settings = null;
-	
+
 	final Context _context = this;
 	final Messenger _messenger = new Messenger(_context);
 
@@ -45,7 +42,7 @@ public class MainActivity extends Activity {
 
 	final Handler _handler = new Handler();
 
-	SurfaceView _surfaceView = null;
+	private SurfaceView _surfaceView = null;
 	
 	int _interval = 60;
 	boolean _isTakingPictures = false;
@@ -62,10 +59,10 @@ public class MainActivity extends Activity {
 	String _minimumCameraSize = null;
 	
 	// UI elements
-	EditText _uploadUrlEditText = null;
 	ToggleButton _dataButton = null;
 	ToggleButton _wifiButton = null;
 	ToggleButton _startStopButton = null;
+	Button _settingsButton = null;
 	
 	public Context getContext(){
 		return _context;
@@ -80,6 +77,9 @@ public class MainActivity extends Activity {
 	}
 	
 	public SurfaceView getSurfaceView(){
+		if(_surfaceView == null){
+			_surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
+		}
 		return _surfaceView;
 	}
 	
@@ -94,15 +94,20 @@ public class MainActivity extends Activity {
         switch (item.getItemId()) {
  
         case R.id.menu_settings:
-            Intent i = new Intent(this, Preferences.class);
-            startActivityForResult(i, RESULT_SETTINGS);
+        	showPreferences(null);
             break;
  
         }
  
         return true;
     }
- 
+	 
+	public void showPreferences(View view){
+        Intent i = new Intent(this, Preferences.class);
+        startActivityForResult(i, RESULT_SETTINGS);
+	}
+	
+	
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -115,78 +120,31 @@ public class MainActivity extends Activity {
         }
  
     }
+        
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		setDefaults();
 		
 		_wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
 		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
 		_startStopButton = (ToggleButton) findViewById(R.id.startStop);
+		_settingsButton = (Button) findViewById(R.id.settingsButton);
 		_startStopButton.setEnabled(false);
 		_startStopButton.setClickable(false);
-		_surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
 		_wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		_connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 				
 		prepareApplication();
-		wireSpinners();
-
-	}
-	
-	void setDefaults(){
 		
-		if(_preferences == null)
-			_preferences = new PreferencesWrapper(this);
-		if(_settings == null)
-			_settings = _preferences.getSettings();
-
-		_serverUrl = _settings.getString("serverUrl", "");
-		_interval = _settings.getInt("interval", 5);
-		_cameraSize = _settings.getString("cameraSize", "");
 	}
-		
+			
 	@Override
 	protected void onDestroy(){
 		CameraWrapper.getInstance().release();
 		handlerRemoveCallbacks();		
 		super.onDestroy();
-	}
-
-	void wireSpinners(){
-//		Spinner pictureSettingsSpinner = (Spinner) findViewById(R.id.pictureSizeSpinner);
-//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getCameraSizesList());
-//		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//		pictureSettingsSpinner.setAdapter(adapter);
-//		pictureSettingsSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-//
-//			@Override
-//			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-//				String selectedItem = (String) parent.getItemAtPosition(pos);
-//				Toast.makeText(getContext(), String.format("Size set to %s", selectedItem), Toast.LENGTH_SHORT).show();
-//			}
-//
-//			@Override
-//			public void onNothingSelected(AdapterView<?> parent) {
-//				Toast.makeText(getContext(), "Nothing selected, using default", Toast.LENGTH_SHORT).show();				
-//			}
-//			
-//		});
-//		Spinner intervalSpinner = (Spinner) findViewById(R.id.intervalSpinner);
-//		intervalSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-//
-//			@Override
-//			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-//			}
-//
-//			@Override
-//			public void onNothingSelected(AdapterView<?> parent) {
-//				Toast.makeText(getContext(), "No change, using default", Toast.LENGTH_SHORT).show();
-//			}
-//		});
 	}
 
 	/**
@@ -278,36 +236,42 @@ public class MainActivity extends Activity {
 		if (_isTakingPictures) {
 			setData();
 			handlerPostDelayed();
+			_settingsButton.setEnabled(false);
+			_settingsButton.setClickable(false);
 		} else {
 			handlerRemoveCallbacks();
+			_settingsButton.setEnabled(true);
+			_settingsButton.setClickable(true);
 		}
 		
 		Toast.makeText(this, "Application " + (_isTakingPictures ? "started" : "stopped"), Toast.LENGTH_SHORT).show();
 
 	}
 
+	private SharedPreferences _sharedPreferences = null;	
+	public SharedPreferences getPref(){
+		if(_sharedPreferences == null){
+			_sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+		}
+		return _sharedPreferences;
+	}
+	
 	private void setData(){
-		_uploadScriptUrl = _uploadUrlEditText.getText().toString();
+		
+		_uploadScriptUrl = getPref().getString(Preferences.SERVER_URL_PREF, "");
 
 		if (!_uploadScriptUrl.contains("http://")) {
 			_uploadScriptUrl = String.format("http://%s", _uploadScriptUrl);
 		}
 
-		if (!_uploadScriptUrl.contains("/uploadfiles.php")) {
-			_uploadScriptUrl = String.format("%s/uploadfiles.php",
-					_uploadScriptUrl);
+		String scriptFileLocation = "/api/uploadfiles.php";
+		
+		if (!_uploadScriptUrl.contains(scriptFileLocation)) {
+			_uploadScriptUrl = String.format("%s%s", _uploadScriptUrl, scriptFileLocation);
 		}
 
-		if (_uploadScriptUrl.contains("grim")) {
-			_uploadScriptUrl = _uploadScriptUrl.replace("grim", "84.50.139.87");
-		}
-
-		// todo: hardcoded interval
-		_interval = 5;
-
-		if (_interval == 0) {
-			_interval = 60;
-		}
+		_interval = Integer.parseInt(getPref().getString(Preferences.INTERVAL_PREF, "5"));
 
 		Log.d(TAG, "Upload script url set to: " + _uploadScriptUrl);
 		Log.d(TAG, "Time interval set to: " + _interval);
