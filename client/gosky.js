@@ -34,14 +34,21 @@ var getCurrentImageIndex = function(){
 
 var startPlaying = function(){
     _isPlaying = true;
-    $_playButton.html($_playButton.data("stop"));
+    setPlayButtonStatus("stop");
     _setInterval = Meteor.setInterval(changeImageSrc, _timeOut);    
 }
 
 var stopPlaying = function(){
     _isPlaying = false;
-    $_playButton.html($_playButton.data("play"));
+    setPlayButtonStatus("play");
     Meteor.clearInterval(_setInterval);
+}
+
+var setPlayButtonStatus = function(status){
+    if($_playButton === null){
+        $_playButton = $("#playButton");
+    }
+    $_playButton.html($_playButton.data(status));
 }
 
 var changeImageSrc = function(index){
@@ -68,33 +75,85 @@ var changeImageSrc = function(index){
         });
     }
     
-    if(_isPlaying){
-        $_slider.slider("option", "value", _currentImageIndex);
-    }
+    $_slider.slider("option", "value", _currentImageIndex);
 
     if(index){
         _currentImageIndex = index;
     }
     if(_filesArray !== null){
-        if(!_filesArray[_currentImageIndex]){
+        if(_currentImageIndex < 0){
             _currentImageIndex = 0;
+        } else if(!_filesArray[_currentImageIndex]){
+            _currentImageIndex = _filesArray.length - 1;
         }
         $_image.attr("src", _serverUrl + _filesArray[_currentImageIndex].path);
     }
-    _currentImageIndex += 1;
+    
+    if(_isPlaying){
+        _currentImageIndex += 1;        
+    }
+    
     if(_currentImageIndex === _filesArray.length){
         stopPlaying();
+        // rewinding
+        _currentImageIndex = 0;
     }
+    
+    updateStatusLabel();
 };
+
+$_currentPicLabel = null;
+$_totalPicsLabel = null;
+var updateStatusLabel = function(){
+    if($_currentPicLabel === null){
+        $_currentPicLabel = $("#currentPicLabel");
+    }
+    if($_totalPicsLabel === null){
+        $_totalPicsLabel = $("#totalPicsLabel");
+    }
+    $_currentPicLabel.html(_currentImageIndex + 1);
+    $_totalPicsLabel.html(_filesArray.length);
+}
 
 Template.image.events({
     "click #playButton": function(e){
-        $("#slider").slider();
-        $_playButton = $(e.currentTarget);
         if(_isPlaying){
             stopPlaying();
         } else {
             startPlaying();
         }
+    },
+
+    "click #firstButton": function(e){
+        _currentImageIndex = 0;
+        changeImageSrc();
+    },
+    
+    "click #previousTen": function(e){
+        _currentImageIndex = _currentImageIndex - 10;
+        changeImageSrc();
+    },
+    
+    "click #previousButton": function(e){
+        _currentImageIndex--;
+        changeImageSrc();
+    },
+    
+    "click #nextButton": function(e){
+        _currentImageIndex++;
+        changeImageSrc();
+    },
+
+    "click #nextTen": function(e){
+        _currentImageIndex = _currentImageIndex + 10;
+        changeImageSrc();
+    },
+    
+    "click #lastButton": function(e){
+        _currentImageIndex = _filesArray.length - 1;
+        changeImageSrc();
     }
+    
+    
+    
 });    
