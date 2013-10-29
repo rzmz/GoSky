@@ -3,11 +3,14 @@
 </head>
 
 <body>
-  {{> hello}}
+  <div class="container">
+    <h3>Welcome to GoSky!</h3>
+    {{> image}}
+  </div>
 </body>
 
-<template name="hello">
-  <h1>Hello World!</h1>
-  {{greeting}}
-  <input type="button" value="Click" />
+<template name="image">
+  <div id="imageDIV"><img id="image" src="http://gosky.rasmus.ee/incoming/20131029/converted/IMG_20131029_144151.jpg" /></div>
+  <hr>
+  <div id="toolbarDIV"><button id="playButton" class="btn btn-success" data-play="Play" data-stop="Stop">Play</button></div>
 </template>
