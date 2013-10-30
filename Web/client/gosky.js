@@ -15,6 +15,14 @@ Template.image.directories = function(){
     return Session.get("directories") || [];
 }
 
+Template.image.currentDir = function(dir){
+    if(getParams().dir == dir) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 Template.image.identifierKey = function(){
     return Session.get("identifierKey");
 }
