@@ -9,8 +9,8 @@
 *.class
 
 # generated files
-bin/
-gen/
+/Droid/bin/
+/Droid/gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -18,3 +18,9 @@ local.properties
 # Android Studio project files
 .idea
 
+# Web incoming files
+/Web/public/incoming
+
+# Server static files
+*.o
+*.exe
