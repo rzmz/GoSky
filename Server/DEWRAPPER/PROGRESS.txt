@@ -1,0 +1,4 @@
+C:\myyr.jpg -> C:\myyr2.jpg
+C:\myyr.jpg -> C:\myyr2.jpg
+C:\myyr.jpg -> C:\myyr2.jpg
+C:\myyr.jpg -> C:\myyr2.jpg

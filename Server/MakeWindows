@@ -1,0 +1,72 @@
+# The name of your C compiler:
+CC= gcc
+
+# You may need to adjust these cc options:
+CFLAGS=  -Wall
+# Generally, we recommend defining any configuration symbols in jconfig.h,
+# NOT via -D switches here.
+
+# Link-time cc options:
+LDFLAGS= -L.
+
+# miscellaneous OS-dependent stuff
+# linker
+LN= $(CC)
+# file deletion command
+RM= rm -f
+# library (.a) file creation command
+AR= ar rc
+# second step in .a creation (use "touch" if not needed)
+AR2= ranlib
+
+
+
+
+#includimise directoryd
+DIR1 = DEWRAPPER
+DIR2 = DEWRAPPER\LOGER
+DIR3 = DEWRAPPER\image
+DIR4 = DEWRAPPER\image\libjpg
+DIR5 = DEWRAPPER\image\libbmp
+DIR6 = DEWRAPPER\mapper
+
+INCS = -I$(DIR1) -I$(DIR2) -I$(DIR3) -I$(DIR4) -I$(DIR5) -I$(DIR6) 
+LIBS = -L$(DIR4)
+#*.o failid pannakse siia kausta
+BUILDDIR = .\
+
+COBJECTS=main.o mapper.o dewrap_algo.o loger.o loger_error.o loger_progress.o image_opener.o image_saver.o
+
+all: DEWRAPPER.exe
+
+DEWRAPPER.exe: $(COBJECTS) 
+	$(LN) $(LDFLAGS) -o DEWRAPPER.exe $(COBJECTS) $(LIBS) -ljpeg
+	
+main.o: $(DIR1)\main.c
+	$(CC) $(DIR1)\main.c -c -o main.o $(CFLAGS) $(INCS)
+
+loger.o: $(DIR2)\loger.c
+	$(CC) $(DIR2)\loger.c -c -o loger.o $(CFLAGS) $(INCS)
+
+loger_error.o: $(DIR2)\loger_error.c
+	$(CC) $(DIR2)\loger_error.c -c -o loger_error.o $(CFLAGS) $(INCS)
+
+loger_progress.o: $(DIR2)\loger_progress.c
+	$(CC) $(DIR2)\loger_progress.c -c -o loger_progress.o $(CFLAGS) $(INCS)	
+	
+dewrap_algo.o: $(DIR6)\dewrap_algo.c
+	$(CC) $(DIR6)\dewrap_algo.c -c -o dewrap_algo.o $(CFLAGS) $(INCS)
+	
+mapper.o: $(DIR6)\mapper.c
+	$(CC) $(DIR6)\mapper.c -c -o mapper.o $(CFLAGS) $(INCS)
+
+image_opener.o: $(DIR3)\image_opener.c
+	$(CC) $(DIR3)\image_opener.c -c -o image_opener.o $(CFLAGS) $(INCS) 
+	
+image_saver.o: $(DIR3)\image_saver.c
+	$(CC) $(DIR3)\image_saver.c -c -o image_saver.o $(CFLAGS) $(INCS) 
+
+	
+	
+clean:
+	$(RM) *.o

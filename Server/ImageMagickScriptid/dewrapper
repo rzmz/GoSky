@@ -1,0 +1,20 @@
+
+Rmax=$1
+CenterX=$2
+CenterY=$3
+start=$(expr $4 - 90)
+
+fin=$5
+fout=$6
+
+Rmin=0
+end_angle=0 
+
+echo "Input file $fin"
+echo "Output file $fout"
+echo "R $Rmax X $CenterX Y $CenterY start $start"
+
+convert $fin +distort  DePolar "$Rmax $Rmin $CenterX $CenterY $start $end_angel" $fout
+
+
+./label $fout $fout
