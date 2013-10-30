@@ -11,23 +11,52 @@ var $_image = null;
 var $_slider = null;
 var $_playButton = null;
 
+Template.image.directories = function(){
+    return Session.get("directories") || [];
+}
+
+Template.image.identifierKey = function(){
+    return Session.get("identifierKey");
+}
+
 Template.image.rendered = function(){
+    
     _identifierKey = getParams().identifierKey;
+    
+    // todo: hardcoded Rasmus's identifierKey
+    if(!_identifierKey){
+        _identifierKey = "4afptz753wfi";
+    }
     
     if(!_identifierKey){
         alert("Please supply identifierKey!");
+    } else {
+        Session.set("identifierKey", _identifierKey);
     }
     
     if(getParams().start){
         _currentImageIndex = parseInt(getParams().start);
     }
     
+    if(getParams().dir){
+        Session.set("dir", getParams().dir);
+    }
+    
     $.getJSON(_serverUrl + "api/directories.php?identifierKey=" + _identifierKey, function(result){
         _dirJSON = result;
         if(_dirJSON && _dirJSON.directories_count > 0){
             var dirArray = _dirJSON.directories;
-            var dir = dirArray[dirArray.length - 1];
-            $.getJSON(_serverUrl + "api/files.php?identifierKey=" + _identifierKey + "&dir=" + dir.name, function(result){
+            Session.set("directories", dirArray);
+            
+            var dir = dirArray[dirArray.length - 1].name;
+                        
+            if(Session.get("dir")){
+                dir = Session.get("dir");
+            }
+            
+            console.log(dir);
+            
+            $.getJSON(_serverUrl + "api/files.php?identifierKey=" + _identifierKey + "&dir=" + dir, function(result){
                 _filesJSON = result;
                 if(_filesJSON && _filesJSON.files_count > 0){
                     _filesArray = _filesJSON.files;
