@@ -2,6 +2,7 @@ var _dirJSON = null;
 var _filesJSON = null;
 var _filesArray = null;
 var _serverUrl = "http://gosky.rasmus.ee/";
+var _identifierKey = "";
 var _isPlaying = false;
 var _timeOut = 300; // in milliseconds
 var _setInterval = null;
@@ -11,7 +12,8 @@ var $_slider = null;
 var $_playButton = null;
 
 Template.image.rendered = function(){
-    $.getJSON(_serverUrl + "api/directories.php", function(result){
+    _identifierKey = getParams().identifierKey;
+    $.getJSON(_serverUrl + "api/directories.php?identifierKey=" + _identifierKey, function(result){
         _dirJSON = result;
         if(_dirJSON && _dirJSON.directories_count > 0){
             var dirArray = _dirJSON.directories;
@@ -26,6 +28,21 @@ Template.image.rendered = function(){
         }
     });        
 };
+
+var _getParams = null;
+var getParams = function(){
+    if(_getParams === null){
+        var prmstr = window.location.search.substr(1);
+        var prmarr = prmstr.split ("&");
+        _getParams = {};
+
+        for ( var i = 0; i < prmarr.length; i++) {
+            var tmparr = prmarr[i].split("=");
+            _getParams[tmparr[0]] = tmparr[1];
+        }
+    }
+    return _getParams;
+}
 
 var getCurrentImageIndex = function(){
     console.log(_currentImageIndex);
