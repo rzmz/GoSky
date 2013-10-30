@@ -1,4 +1,3 @@
-
 Rmax=$1
 CenterX=$2
 CenterY=$3
@@ -14,7 +13,12 @@ echo "Input file $fin"
 echo "Output file $fout"
 echo "R $Rmax X $CenterX Y $CenterY start $start"
 
-convert $fin +distort  DePolar "$Rmax $Rmin $CenterX $CenterY $start $end_angel" $fout
+
+if [ "$Rmax" == "0" ]; then
+	convert $fin +distort  DePolar 0 $fout
+else
+	convert $fin +distort  DePolar "$Rmax $Rmin $CenterX $CenterY $start $end_angel" $fout
+fi
 
 
 ./label $fout $fout
