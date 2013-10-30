@@ -29,6 +29,7 @@ public class MainActivityTest extends
 	
 	public void testSettingsButton() throws Exception {
 		solo.assertCurrentActivity("wrong activity", MainActivity.class);
+		solo.clickOnButton("OK");
 		solo.clickOnButton(solo.getString(ee.tvp.gosky.R.string.menu_settings));
 		solo.assertCurrentActivity("wrong activity", Preferences.class);
 		solo.goBack();

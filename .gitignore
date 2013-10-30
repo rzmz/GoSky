@@ -11,6 +11,8 @@
 # generated files
 /Droid/bin/
 /Droid/gen/
+/DroidTest/bin/
+/DroidTest/gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
