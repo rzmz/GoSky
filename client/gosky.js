@@ -1,7 +1,7 @@
 var _dirJSON = null;
 var _filesJSON = null;
 var _filesArray = null;
-var _serverUrl = "http://gosky.rasmus.ee/";
+var _serverUrl = "http://gosky.rasmus.ee/public/";
 var _identifierKey = "";
 var _isPlaying = false;
 var _timeOut = 300; // in milliseconds
@@ -13,12 +13,21 @@ var $_playButton = null;
 
 Template.image.rendered = function(){
     _identifierKey = getParams().identifierKey;
+    
+    if(!_identifierKey){
+        alert("Please supply identifierKey!");
+    }
+    
+    if(getParams().start){
+        _currentImageIndex = parseInt(getParams().start);
+    }
+    
     $.getJSON(_serverUrl + "api/directories.php?identifierKey=" + _identifierKey, function(result){
         _dirJSON = result;
         if(_dirJSON && _dirJSON.directories_count > 0){
             var dirArray = _dirJSON.directories;
             var dir = dirArray[dirArray.length - 1];
-            $.getJSON(_serverUrl + "api/files.php?dir=" + dir.name, function(result){
+            $.getJSON(_serverUrl + "api/files.php?identifierKey=" + _identifierKey + "&dir=" + dir.name, function(result){
                 _filesJSON = result;
                 if(_filesJSON && _filesJSON.files_count > 0){
                     _filesArray = _filesJSON.files;
@@ -112,8 +121,7 @@ var changeImageSrc = function(index){
     
     if(_currentImageIndex === _filesArray.length){
         stopPlaying();
-        // rewinding
-        _currentImageIndex = 0;
+        _currentImageIndex--;
     }
     
     updateStatusLabel();
