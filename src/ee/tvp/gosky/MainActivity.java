@@ -1,5 +1,9 @@
 package ee.tvp.gosky;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -28,6 +32,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 import ee.tvp.gosky.utils.CameraWrapper;
 import ee.tvp.gosky.utils.Messenger;
+import ee.tvp.gosky.utils.RandomString;
 import ee.tvp.gosky.utils.StorageWrapper;
 import ee.tvp.gosky.utils.SysInfo;
 
@@ -82,7 +87,7 @@ public class MainActivity extends Activity {
 		}
 		return _surfaceView;
 	}
-	
+	  
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
@@ -120,7 +125,50 @@ public class MainActivity extends Activity {
         }
  
     }
-        
+    
+    static String IDENTITY_FILE_NAME = "gosky_identity_file";
+    static int IDENTITY_KEY_LENGTH = 12;
+    
+    private String _identifierKey = null;
+    public String getIndentifierKey(){
+    	
+    	if(_identifierKey == null){
+    		try {
+				FileInputStream fin = openFileInput(IDENTITY_FILE_NAME);
+				int k = 0;
+				_identifierKey = "";
+				while((k = fin.read()) != -1){
+					_identifierKey += (char)k;
+				}
+				fin.close();
+				Log.d(TAG, "Identifier file read OK");
+				if(_identifierKey.length() != IDENTITY_KEY_LENGTH){
+					throw new FileNotFoundException("Must regenerate Identifier key!");
+				}
+			} catch (FileNotFoundException e) {
+				_identifierKey = new RandomString(IDENTITY_KEY_LENGTH).nextString();
+				try {
+					FileOutputStream fout = openFileOutput(IDENTITY_FILE_NAME, Context.MODE_PRIVATE);
+					fout.write(_identifierKey.getBytes());
+					fout.close();
+					Log.d(TAG, "Identifier file write OK");
+				} catch (FileNotFoundException e1) {
+					Log.w(TAG, "Exception in getIdentifierKey #1");
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					Log.w(TAG, "Exception in getIdentifierKey #2");
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} catch (IOException e) {
+				Log.e(TAG, "Cannot read identity file!");
+				e.printStackTrace();
+			}
+    	}
+    	
+    	return _identifierKey;
+    }
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -252,7 +300,6 @@ public class MainActivity extends Activity {
 	public SharedPreferences getPref(){
 		if(_sharedPreferences == null){
 			_sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
 		}
 		return _sharedPreferences;
 	}
@@ -265,10 +312,16 @@ public class MainActivity extends Activity {
 			_uploadScriptUrl = String.format("http://%s", _uploadScriptUrl);
 		}
 
-		String scriptFileLocation = "/api/uploadfiles.php";
+		String scriptFileLocation = "/public/api/uploadfiles.php";
 		
 		if (!_uploadScriptUrl.contains(scriptFileLocation)) {
 			_uploadScriptUrl = String.format("%s%s", _uploadScriptUrl, scriptFileLocation);
+		}
+		
+		// add identifier key to upload script url
+		String identifierParameter = String.format("?identifierKey=%s", getIndentifierKey());
+		if(!_uploadScriptUrl.contains(identifierParameter)){
+			_uploadScriptUrl += identifierParameter;
 		}
 
 		_interval = Integer.parseInt(getPref().getString(Preferences.INTERVAL_PREF, "5"));
