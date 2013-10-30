@@ -1,0 +1,31 @@
+fin=$1
+fout=$2
+input_w=$(identify -format %w $fin)
+input_h=$(identify -format %h $fin)
+
+
+if [ "${#fin}" == "23" ]; then
+	label_string=""${fin:4:2}"-"${fin:6:2}"-"${fin:8:2}" "${fin:13:2}":"${fin:15:2}":"${fin:17:2}""
+	echo "String peaks olema $label_string"
+else
+	current_date=$(date +"%d-%m-%y")
+	current_time=$(date +"%H:%M:%S")
+	label_string=""$current_date" "$current_time""	
+fi
+
+
+
+
+label_h=$(expr $input_h / 16)
+label_w=$(expr $label_h \* 7)
+label_ofs=$(expr $input_h / 32)
+
+echo "Kasti suurus: $label_w x $label_h "
+echo "labeli ofset aarest: $label_ofs"
+echo "Sisendfail $fin"
+echo "Valjund fial $fout"
+echo "Sisend suurus $input_w X $input_h"
+echo "String $label_string"
+
+convert -background "#000A" -fill white -gravity center -size "$label_w"x"$label_h" caption:"$label_string" $fin +swap -gravity southeast -geometry +"$label_ofs"+"$label_ofs" -composite  $fout
+convert -background "#000A" -fill white -gravity center -size "$label_h"x"$label_h" caption:"N" $fout +swap -gravity south -geometry +"$label_ofs"+"$label_ofs" -composite  $fout

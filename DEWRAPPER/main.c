@@ -56,14 +56,14 @@ int main(int argc, char *argv[])
 	  return 0;
   	  }
 
-/*
+
   printf("R %i\n", para_R);
   printf("x %i\n", para_x);
   printf("y %i\n", para_y);
   printf("intensity %i\n", para_inte);
   printf("Fin %s\n", fin);
   printf("Fout %s\n", fout);
-*/
+
 
 //Päris programm
 
