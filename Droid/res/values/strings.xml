@@ -20,6 +20,7 @@
     <string name="externalStorageUnavailable">External storage is inavailable. Using internal storage.</string>
     <string name="cameraUnavailable">External storage is inavailable. Using internal storage.</string>
     <string name="hdrUnavailable">High Dynamic Range scene mode seems to be unavailable on this device. HDR cannot be used.</string>
+    <string name="identifierKeyDummyText">ok234okij34i</string>
 
     <!-- General prefs -->
     <string name="pref_general">General</string>
@@ -51,5 +52,6 @@
     
     <!-- menu -->
     <string name="menu_settings">Settings</string>
+    <string name="identifierKeyLabel">Your identifier key is</string>
 
 </resources>

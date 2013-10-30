@@ -13,46 +13,71 @@
         android:layout_alignParentTop="true"
         android:layout_gravity="fill" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:gravity="center"
-        android:orientation="horizontal"
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_horizontal|center_vertical" >
 
-        <ToggleButton
-            android:id="@+id/startStop"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="toggleAction"
-            android:textOff="@string/start"
-            android:textOn="@string/stop" />
+            android:gravity="center"
+            android:orientation="horizontal" >
 
-        <ToggleButton
-            android:id="@+id/toggleWifi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="toggleWifi"
-            android:textOff="@string/wifiOff"
-            android:textOn="@string/wifiOn" />
+            <ToggleButton
+                android:id="@+id/startStop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="toggleAction"
+                android:textOff="@string/start"
+                android:textOn="@string/stop" />
 
-        <ToggleButton
-            android:id="@+id/toggleData"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="toggleData"
-            android:textOff="@string/dataOff"
-            android:textOn="@string/dataOn" />
+            <ToggleButton
+                android:id="@+id/toggleWifi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="toggleWifi"
+                android:textOff="@string/wifiOff"
+                android:textOn="@string/wifiOn" />
 
-        <Button
-            android:id="@+id/settingsButton"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="showPreferences"
-            android:text="@string/menu_settings" />
-    </LinearLayout>
+            <ToggleButton
+                android:id="@+id/toggleData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="toggleData"
+                android:textOff="@string/dataOff"
+                android:textOn="@string/dataOn" />
+
+            <Button
+                android:id="@+id/settingsButton"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="showPreferences"
+                android:text="@string/menu_settings" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/identifierKeyTextfield"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/frameLayout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="46dp"
+        android:text="@string/identifierKeyDummyText"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/identifierKeyTextfield"
+        android:layout_alignRight="@+id/identifierKeyTextfield"
+        android:text="@string/identifierKeyLabel" />
 
 </RelativeLayout>

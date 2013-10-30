@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.net.ConnectivityManager;
@@ -28,6 +29,7 @@ import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import ee.tvp.gosky.utils.CameraWrapper;
@@ -183,7 +185,13 @@ public class MainActivity extends Activity {
 		_startStopButton.setClickable(false);
 		_wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		_connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-				
+		
+		// show ident key to the user
+		
+		TextView identifierKeyTextField = (TextView) findViewById(R.id.identifierKeyTextfield);
+		identifierKeyTextField.setText(getIndentifierKey());
+		identifierKeyTextField.setTextColor(Color.WHITE);
+		
 		prepareApplication();
 		
 	}
