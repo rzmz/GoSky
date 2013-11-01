@@ -9,7 +9,9 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -342,7 +344,7 @@ public class MainActivity extends Activity {
 	private long getIntervalInMillis() {
 		return _interval * 1000;
 	}
-
+	
 	private void monitor(){
 		Log.d("MONITOR",
 				String.format("Available memory: %dMiB",
@@ -350,11 +352,13 @@ public class MainActivity extends Activity {
 		Log.d("MONITOR",
 				String.format("External storage state: %s",
 						Environment.getExternalStorageState()));
+		/*
 		Log.d("MONITOR",
 				String.format("Available SD Card size: %dMiB",
-						SysInfo.getAvailableSDCardSize(_context)));		
+						SysInfo.getAvailableSDCardSize(_context)));	
+		*/	
 	}
-	
+
 	private Runnable mainOperation = new Runnable() {
 		@Override
 		public void run() {
@@ -393,4 +397,29 @@ public class MainActivity extends Activity {
 		Log.d(TAG, "Setting app ready");
 	}
 	
+	@Override
+	public void onBackPressed() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Exit");
+		builder.setMessage("Are You Sure?");
+
+		builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				finish();
+				System.exit(0);
+			}
+		});
+
+		builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+
 }
