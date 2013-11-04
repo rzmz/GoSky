@@ -208,6 +208,9 @@ public class MainActivity extends Activity {
 	/**
 	 * Checks device features and shows notice when no camera is found
 	 */
+	
+	
+	
 	private void prepareApplication() {
 
 		if (!StorageWrapper.isStorageAvailable()) {
@@ -233,10 +236,19 @@ public class MainActivity extends Activity {
 		
 		_dataButton.setChecked(getMobileDataEnabled());
 		
-		if(!hasHdr()){
-			_messenger.notice(R.string.hdrUnavailable);
-		}
+		SharedPreferences hddrPreference = PreferenceManager.getDefaultSharedPreferences(this);
+		boolean isFirstRun = hddrPreference.getBoolean("FIRSTRUN", true);
 		
+		if (isFirstRun)
+		{
+			if(!hasHdr()){
+			_messenger.notice(R.string.hdrUnavailable);
+		} 
+			
+		    SharedPreferences.Editor editor = hddrPreference.edit();
+		    editor.putBoolean("FIRSTRUN", false);
+		    editor.commit();
+		}		
 	}
 
 	private boolean hasCamera() {
