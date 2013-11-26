@@ -380,7 +380,7 @@ public class MainActivity extends Activity {
 			formattedParameters[counter++] = sb.toString();
 		}
 
-		_uploadScriptUrl = String.format("%s?%s", _uploadScriptUrl, TextUtils.join("&", formattedParameters));
+		_uploadScriptUrl = String.format("%s?%s", _uploadScriptUrl, TextUtils.join("&amp;", formattedParameters));
 
 		_interval = Integer.parseInt(getPref().getString(
 				Preferences.INTERVAL_PREF, "5"));

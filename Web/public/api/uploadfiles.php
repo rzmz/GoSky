@@ -41,7 +41,9 @@ $data['server'] = $_SERVER;
 if($_FILES && sizeof($_FILES) > 0){
   
   if(isset($_GET['identifierKey'])){
+
     $upload_base_path = "../incoming/" . $_GET['identifierKey'] . "/" . date("Ymd") . "/" . date("H") . "/";
+    
     if(!file_exists($upload_base_path)){
       mkdir($upload_base_path, 0777, true);
     }
@@ -55,11 +57,21 @@ if($_FILES && sizeof($_FILES) > 0){
 
     if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target_file_path)) {
         $data['resultMessage'] = "Success";
-        $data['resultCode'] = CODE_OK;
+        $data['resultCode'] = CODE_OK;        
         $target_converted_file_path = $upload_converted_path . basename($_FILES['uploadedfile']['name']);
-        //$data['shell'] = shell_exec('./dewrapper -R 1200 -inte 1080 -fin ' . $target_path1 . ' -fout ' . $target_path2); // this is the old way
-        // do the distort depolar conversion
-        $data['shell'] = shell_exec('convert ' . $target_file_path . ' +distort DePolar 0 ' . $target_converted_file_path);
+        if(isset($_GET['lensConversion'])){
+          switch ($_GET['lensConversion'])
+          {
+            case "fisheye2pano":
+              $data['shell'] = shell_exec('convert ' . $target_file_path . ' +distort DePolar 0 ' . $target_converted_file_path);
+            break;
+            case "fisheye2plain":
+              $data['shell'] = shell_exec('./dewrapper -R 1200 -inte 1080 -fin ' . $target_file_path . ' -fout ' . $target_converted_file_path);
+            break;
+            default:
+              $data['shell'] = shell_exec('cp ' . $target_file_path . ' ' . $target_converted_file_path);
+          }
+        }
     } else {
         $data['resultMessage'] =  "Failure";
     }    
