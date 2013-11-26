@@ -5,7 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -25,6 +28,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,7 +45,7 @@ import ee.tvp.gosky.utils.StorageWrapper;
 import ee.tvp.gosky.utils.SysInfo;
 
 public class MainActivity extends Activity {
-	
+
 	private static final int RESULT_SETTINGS = 1;
 
 	final Context _context = this;
@@ -52,7 +56,7 @@ public class MainActivity extends Activity {
 	final Handler _handler = new Handler();
 
 	private SurfaceView _surfaceView = null;
-	
+
 	int _interval = 60;
 	boolean _isTakingPictures = false;
 	String _uploadScriptUrl = null;
@@ -66,32 +70,32 @@ public class MainActivity extends Activity {
 	String _serverUrl = null;
 	String _cameraSize = null;
 	String _minimumCameraSize = null;
-	
+
 	// UI elements
 	ToggleButton _dataButton = null;
 	ToggleButton _wifiButton = null;
 	ToggleButton _startStopButton = null;
 	Button _settingsButton = null;
-	
-	public Context getContext(){
+
+	public Context getContext() {
 		return _context;
 	}
-	
-	public StorageWrapper getStorage(){
+
+	public StorageWrapper getStorage() {
 		return _storage;
 	}
-	
-	public String getUploadScriptUrl(){
+
+	public String getUploadScriptUrl() {
 		return _uploadScriptUrl;
 	}
-	
-	public SurfaceView getSurfaceView(){
-		if(_surfaceView == null){
+
+	public SurfaceView getSurfaceView() {
+		if (_surfaceView == null) {
 			_surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
 		}
 		return _surfaceView;
 	}
-	  
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
@@ -99,60 +103,63 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
- 
-        case R.id.menu_settings:
-        	showPreferences(null);
-            break;
- 
-        }
- 
-        return true;
-    }
-	 
-	public void showPreferences(View view){
-        Intent i = new Intent(this, Preferences.class);
-        startActivityForResult(i, RESULT_SETTINGS);
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+
+		case R.id.menu_settings:
+			showPreferences(null);
+			break;
+
+		}
+
+		return true;
 	}
-	
-	
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
- 
-        switch (requestCode) {
-        case RESULT_SETTINGS:
-        	Log.d(TAG, "something, something, something dark side!");
-            break;
- 
-        }
- 
-    }
-    
-    static String IDENTITY_FILE_NAME = "gosky_identity_file";
-    static int IDENTITY_KEY_LENGTH = 12;
-    
-    private String _identifierKey = null;
-    public String getIndentifierKey(){
-    	
-    	if(_identifierKey == null){
-    		try {
+
+	public void showPreferences(View view) {
+		Intent i = new Intent(this, Preferences.class);
+		startActivityForResult(i, RESULT_SETTINGS);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		switch (requestCode) {
+		case RESULT_SETTINGS:
+			Log.d(TAG, "something, something, something dark side!");
+			break;
+
+		}
+
+	}
+
+	static String IDENTITY_FILE_NAME = "gosky_identity_file";
+	static int IDENTITY_KEY_LENGTH = 12;
+
+	private String _identifierKey = null;
+
+	public String getIndentifierKey() {
+
+		if (_identifierKey == null) {
+			try {
 				FileInputStream fin = openFileInput(IDENTITY_FILE_NAME);
 				int k = 0;
 				_identifierKey = "";
-				while((k = fin.read()) != -1){
-					_identifierKey += (char)k;
+				while ((k = fin.read()) != -1) {
+					_identifierKey += (char) k;
 				}
 				fin.close();
 				Log.d(TAG, "Identifier file read OK");
-				if(_identifierKey.length() != IDENTITY_KEY_LENGTH){
-					throw new FileNotFoundException("Must regenerate Identifier key!");
+				if (_identifierKey.length() != IDENTITY_KEY_LENGTH) {
+					throw new FileNotFoundException(
+							"Must regenerate Identifier key!");
 				}
 			} catch (FileNotFoundException e) {
-				_identifierKey = new RandomString(IDENTITY_KEY_LENGTH).nextString();
+				_identifierKey = new RandomString(IDENTITY_KEY_LENGTH)
+						.nextString();
 				try {
-					FileOutputStream fout = openFileOutput(IDENTITY_FILE_NAME, Context.MODE_PRIVATE);
+					FileOutputStream fout = openFileOutput(IDENTITY_FILE_NAME,
+							Context.MODE_PRIVATE);
 					fout.write(_identifierKey.getBytes());
 					fout.close();
 					Log.d(TAG, "Identifier file write OK");
@@ -168,17 +175,17 @@ public class MainActivity extends Activity {
 				Log.e(TAG, "Cannot read identity file!");
 				e.printStackTrace();
 			}
-    	}
-    	
-    	return _identifierKey;
-    }
+		}
+
+		return _identifierKey;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		_wifiButton = (ToggleButton) findViewById(R.id.toggleWifi);
 		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
 		_startStopButton = (ToggleButton) findViewById(R.id.startStop);
@@ -187,30 +194,28 @@ public class MainActivity extends Activity {
 		_startStopButton.setClickable(false);
 		_wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		_connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		
+
 		// show ident key to the user
-		
+
 		TextView identifierKeyTextField = (TextView) findViewById(R.id.identifierKeyTextfield);
 		identifierKeyTextField.setText(getIndentifierKey());
 		identifierKeyTextField.setTextColor(Color.WHITE);
-		
+
 		prepareApplication();
-		
+
 	}
-			
+
 	@Override
-	protected void onDestroy(){
+	protected void onDestroy() {
 		CameraWrapper.getInstance().release();
-		handlerRemoveCallbacks();		
+		handlerRemoveCallbacks();
 		super.onDestroy();
 	}
 
 	/**
 	 * Checks device features and shows notice when no camera is found
 	 */
-	
-	
-	
+
 	private void prepareApplication() {
 
 		if (!StorageWrapper.isStorageAvailable()) {
@@ -233,30 +238,34 @@ public class MainActivity extends Activity {
 			_messenger.notice(R.string.no_wifi_present);
 			Log.i(TAG, getResources().getString(R.string.no_wifi_present));
 		}
-		
+
 		_dataButton.setChecked(getMobileDataEnabled());
-		
-		SharedPreferences hddrPreference = PreferenceManager.getDefaultSharedPreferences(this);
+
+		SharedPreferences hddrPreference = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		boolean isFirstRun = hddrPreference.getBoolean("FIRSTRUN", true);
-		
-		if (isFirstRun)
-		{
-			if(!hasHdr()){
-			_messenger.notice(R.string.hdrUnavailable);
-		} 
-			
-		    SharedPreferences.Editor editor = hddrPreference.edit();
-		    editor.putBoolean("FIRSTRUN", false);
-		    editor.commit();
-		}		
+
+		if (isFirstRun) {
+
+			if (!hasHdr()) {
+				_messenger.notice(R.string.hdrUnavailable);
+			}
+
+			SharedPreferences.Editor editor = hddrPreference.edit();
+			editor.putBoolean("FIRSTRUN", false);
+			editor.commit();
+		}
 	}
 
 	private boolean hasCamera() {
-		return getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA) && Camera.getNumberOfCameras() > 0;
+		return getPackageManager().hasSystemFeature(
+				PackageManager.FEATURE_CAMERA)
+				&& Camera.getNumberOfCameras() > 0;
 	}
 
 	private boolean hasWifi() {
-		return getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI);
+		return getPackageManager()
+				.hasSystemFeature(PackageManager.FEATURE_WIFI);
 	}
 
 	public void toggleWifi(View view) {
@@ -264,7 +273,11 @@ public class MainActivity extends Activity {
 		Log.d(TAG,
 				String.format("Wifi connection %s",
 						_wifiManager.isWifiEnabled() ? "disabled" : "enabled"));
-		Toast.makeText(this, String.format("%s WIFI", (_wifiManager.isWifiEnabled() ? "Disabling" : "Enabling")), Toast.LENGTH_SHORT).show();
+		Toast.makeText(
+				this,
+				String.format("%s WIFI",
+						(_wifiManager.isWifiEnabled() ? "Disabling"
+								: "Enabling")), Toast.LENGTH_SHORT).show();
 	}
 
 	private boolean getMobileDataEnabled() {
@@ -294,8 +307,12 @@ public class MainActivity extends Activity {
 		setMobileDataEnabled(!getMobileDataEnabled());
 		Log.d(TAG, String.format("Data connection %s",
 				getMobileDataEnabled() ? "disabled" : "enabled"));
-		
-		Toast.makeText(this, String.format("%s mobile data", (getMobileDataEnabled() ? "Disabling" : "Enabling")), Toast.LENGTH_SHORT).show();
+
+		Toast.makeText(
+				this,
+				String.format("%s mobile data",
+						(getMobileDataEnabled() ? "Disabling" : "Enabling")),
+				Toast.LENGTH_SHORT).show();
 
 	}
 
@@ -304,7 +321,7 @@ public class MainActivity extends Activity {
 		_isTakingPictures = !_isTakingPictures;
 
 		if (_isTakingPictures) {
-			setData();
+			setParameters();
 			handlerPostDelayed();
 			_settingsButton.setEnabled(false);
 			_settingsButton.setClickable(false);
@@ -313,21 +330,25 @@ public class MainActivity extends Activity {
 			_settingsButton.setEnabled(true);
 			_settingsButton.setClickable(true);
 		}
-		
-		Toast.makeText(this, "Application " + (_isTakingPictures ? "started" : "stopped"), Toast.LENGTH_SHORT).show();
+
+		Toast.makeText(this,
+				"Application " + (_isTakingPictures ? "started" : "stopped"),
+				Toast.LENGTH_SHORT).show();
 
 	}
 
-	private SharedPreferences _sharedPreferences = null;	
-	public SharedPreferences getPref(){
-		if(_sharedPreferences == null){
-			_sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+	private SharedPreferences _sharedPreferences = null;
+
+	public SharedPreferences getPref() {
+		if (_sharedPreferences == null) {
+			_sharedPreferences = PreferenceManager
+					.getDefaultSharedPreferences(this);
 		}
 		return _sharedPreferences;
 	}
-	
-	private void setData(){
-		
+
+	private void setParameters() {
+
 		_uploadScriptUrl = getPref().getString(Preferences.SERVER_URL_PREF, "");
 
 		if (!_uploadScriptUrl.contains("http://")) {
@@ -335,29 +356,45 @@ public class MainActivity extends Activity {
 		}
 
 		String scriptFileLocation = "/public/api/uploadfiles.php";
-		
+
 		if (!_uploadScriptUrl.contains(scriptFileLocation)) {
-			_uploadScriptUrl = String.format("%s%s", _uploadScriptUrl, scriptFileLocation);
-		}
-		
-		// add identifier key to upload script url
-		String identifierParameter = String.format("?identifierKey=%s", getIndentifierKey());
-		if(!_uploadScriptUrl.contains(identifierParameter)){
-			_uploadScriptUrl += identifierParameter;
+			_uploadScriptUrl = String.format("%s%s", _uploadScriptUrl,
+					scriptFileLocation);
 		}
 
-		_interval = Integer.parseInt(getPref().getString(Preferences.INTERVAL_PREF, "5"));
+		Map<String, String> parameters = new HashMap<String, String>();
+
+		// identifier key parameter
+		parameters.put("identifierKey", getIndentifierKey());
+
+		// lens conversion parameter
+		String lensConversion = getPref().getString(Preferences.LENS_CONVERSION, "none");		
+		parameters.put("lensConversion", lensConversion);
+
+		String[] formattedParameters = new String[parameters.size()];
+		int counter = 0;
+		
+		for (Entry<String, String> entry : parameters.entrySet()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(String.format("%s=%s", entry.getKey(), entry.getValue()));
+			formattedParameters[counter++] = sb.toString();
+		}
+
+		_uploadScriptUrl = String.format("%s?%s", _uploadScriptUrl, TextUtils.join("&amp;", formattedParameters));
+
+		_interval = Integer.parseInt(getPref().getString(
+				Preferences.INTERVAL_PREF, "5"));
 
 		Log.d(TAG, "Upload script url set to: " + _uploadScriptUrl);
 		Log.d(TAG, "Time interval set to: " + _interval);
-		
+
 	}
-	
+
 	private long getIntervalInMillis() {
 		return _interval * 1000;
 	}
-	
-	private void monitor(){
+
+	private void monitor() {
 		Log.d("MONITOR",
 				String.format("Available memory: %dMiB",
 						SysInfo.getAvailableMemory(_context)));
@@ -365,10 +402,9 @@ public class MainActivity extends Activity {
 				String.format("External storage state: %s",
 						Environment.getExternalStorageState()));
 		/*
-		Log.d("MONITOR",
-				String.format("Available SD Card size: %dMiB",
-						SysInfo.getAvailableSDCardSize(_context)));	
-		*/	
+		 * Log.d("MONITOR", String.format("Available SD Card size: %dMiB",
+		 * SysInfo.getAvailableSDCardSize(_context)));
+		 */
 	}
 
 	private Runnable mainOperation = new Runnable() {
@@ -389,26 +425,31 @@ public class MainActivity extends Activity {
 	}
 
 	@SuppressLint("InlinedApi")
-	private boolean hasHdr(){
+	private boolean hasHdr() {
 		boolean hdr = false;
-		if(_camera != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
-			if(CameraWrapper.getInstance() != null){
-				Parameters parameters = CameraWrapper.getInstance().getParameters();
-				List<String> supportedSceneModes = parameters.getSupportedSceneModes();
-				if(supportedSceneModes != null && supportedSceneModes.size() > 0){
-					hdr = parameters.getSupportedSceneModes().contains(Parameters.SCENE_MODE_HDR);					
+		if (_camera != null
+				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			if (CameraWrapper.getInstance() != null) {
+				Parameters parameters = CameraWrapper.getInstance()
+						.getParameters();
+				List<String> supportedSceneModes = parameters
+						.getSupportedSceneModes();
+				if (supportedSceneModes != null
+						&& supportedSceneModes.size() > 0) {
+					hdr = parameters.getSupportedSceneModes().contains(
+							Parameters.SCENE_MODE_HDR);
 				}
 			}
 		}
 		return hdr;
 	}
 
-	public void setAppReady(boolean state) {		
+	public void setAppReady(boolean state) {
 		_startStopButton.setClickable(state);
-		_startStopButton.setEnabled(state);	
+		_startStopButton.setEnabled(state);
 		Log.d(TAG, "Setting app ready");
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);

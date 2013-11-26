@@ -49,6 +49,22 @@
     <string name="pref_pictureSize_summary">Select the picture size for snapshots</string>
     <string name="pref_sceneMode_title">Scene mode</string>
     <string name="pref_sceneMode_summary">Select the scene mode for snapshots</string>
+
+    <!-- Conversion preferences -->
+    <string name="pref_lens_and_conversion">Lens and conversion</string>
+    <string name="pref_conversion_algorithm_title">Algorithm</string>
+    <string name="pref_conversion_algorithm_summary">Select the algorithm to be used when converting uploaded images on the server</string>
+
+    <string-array name="pref_conversion_algorithm_values">
+        <item>fisheye2pano</item>
+        <item>fisheye2plain</item>
+        <item>none</item>
+    </string-array>
+    <string-array name="pref_conversion_algorithm_names">
+        <item>Fisheye to 360 degrees panorama</item>
+        <item>Fisheye plain</item>
+        <item>None</item>
+    </string-array>
     
     <!-- menu -->
     <string name="menu_settings">Settings</string>
