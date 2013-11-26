@@ -56,9 +56,10 @@ else
 	convert $fin +distort  DePolar "$Rmax $Rmin $CenterX $CenterY $start $end_angel" $fout
 fi
 
-
+#Nime eraldamine
+#IMG_20131030_131323
 if [ "${#fin}" == "23" ]; then
-	label_string=""${fin:4:2}"-"${fin:6:2}"-"${fin:8:2}" "${fin:13:2}":"${fin:15:2}":"${fin:17:2}""
+	label_string=""${fin:4:4}"-"${fin:8:2}"-"${fin:10:2}" "${fin:13:2}":"${fin:15:2}":"${fin:17:2}""
 	#echo "Date string is taken from file name."
 else
 	current_date=$(date +"%d-%m-%y")
