@@ -32,17 +32,22 @@ public class GoSkyPreferenceFragment extends PreferenceFragment {
 			}
 			
 		});
-		
+
+		List<String> supportedSceneModes = CameraWrapper.getSupportedSceneModes();
 		final ListPreference sceneModePreference = (ListPreference) findPreference(Preferences.SCENE_MODE_PREF);
-		setSceneModePreferenceData(sceneModePreference);
-		sceneModePreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				setSceneModePreferenceData(sceneModePreference);
-				return false;
-			}
-		});
+		if(supportedSceneModes != null && supportedSceneModes.size() > 0){
+			setSceneModePreferenceData(sceneModePreference);
+			sceneModePreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+				
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					setSceneModePreferenceData(sceneModePreference);
+					return false;
+				}
+			});			
+		} else {
+			sceneModePreference.setEnabled(false);
+		}
 	}
 	
 	private void setSceneModePreferenceData(ListPreference pref){

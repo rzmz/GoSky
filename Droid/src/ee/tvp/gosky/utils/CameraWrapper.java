@@ -48,8 +48,11 @@ public class CameraWrapper implements PictureCallback {
 		parameters.setFlashMode(Parameters.FLASH_MODE_OFF);
 
 		List<String> sceneModes = getSupportedSceneModes();
-		String sceneMode = _activity.getPref().getString(Preferences.SCENE_MODE_PREF, sceneModes.get(0));
-		parameters.setSceneMode(sceneMode);
+		
+		if(sceneModes != null && sceneModes.size() > 0) {
+			String sceneMode = _activity.getPref().getString(Preferences.SCENE_MODE_PREF, sceneModes.get(0));
+			parameters.setSceneMode(sceneMode);			
+		}
 		
 		try{
 			getInstance().setParameters(parameters);
