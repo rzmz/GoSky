@@ -56,9 +56,9 @@
     <string name="pref_conversion_algorithm_summary">Select the algorithm to be used when converting uploaded images on the server</string>
 
     <string-array name="pref_conversion_algorithm_values">
-        <item>Fisheye2Panorama</item>
-        <item>Fisheye2Plain</item>
-        <item>None</item>
+        <item>fisheye2pano</item>
+        <item>fisheye2plain</item>
+        <item>none</item>
     </string-array>
     <string-array name="pref_conversion_algorithm_names">
         <item>Fisheye to 360 degrees panorama</item>

@@ -30,7 +30,7 @@
     <PreferenceCategory android:title="@string/pref_lens_and_conversion" >
         <ListPreference
             android:defaultValue="Fisheye2Panorama"
-            android:key="prefConversionAlgorithm"
+            android:key="prefLensConversion"
             android:summary="@string/pref_conversion_algorithm_summary"
             android:title="@string/pref_conversion_algorithm_title"
             android:entries="@array/pref_conversion_algorithm_names"
