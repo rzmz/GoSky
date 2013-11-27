@@ -26,3 +26,4 @@ local.properties
 # Server static files
 *.o
 *.exe
+*~

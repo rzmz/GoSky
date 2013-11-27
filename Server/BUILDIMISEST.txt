@@ -1,13 +1,13 @@
-Programmi DEWRAPPER buildimisest
+Programmi fisheye2pane buildimisest
 --------------------------------
 
 Buildimine on koostatud gcc kompillaatorile.
 
-Buildimine toimub kahes osas, kus esmalt kompilleeritakse libjpeg-9 ning pärast seda pilditöötlus tarkvara DEWRAPPER. Buildimist saab esile kutsuda käsureaskriptidega. Koostatud on kaks skripti nii Windows kui Debian OP.-süsteemi jaoks.
+Buildimine toimub kahes osas, kus esmalt kompilleeritakse libjpeg-9 ning pärast seda pilditöötlus tarkvara fisheye2pane. Buildimist saab esile kutsuda käsureaskriptidega. Koostatud on kaks skripti nii Windows kui Debian OP.-süsteemi jaoks.
 
-libjpeg-9 buildimine. Buildimise käigus koostatakse libjpeg.a fail, mis kopeeritakse pärast buildi asukohale DEWRAPPER\image\libjpg\libjpeg.a.
+libjpeg-9 buildimine. Buildimise käigus koostatakse libjpeg.a fail, mis kopeeritakse pärast buildi asukohale fisheye2pane\image\libjpg\libjpeg.a.
 
-DEWRAPPER buildimine. Selle käigus kompilleeritakse kogu vajalik pilditöötlustarkvara ning tekitatakse kausta .\ fail DEWRAPPER.exe. See kutsutakse välja failile myyr.jpg ning tekitatakse sellest väljund TEST.jpeg. Tekivad logifailid EEROR.txt ja PROGRESS.txt 
+fisheye2pane buildimine. Selle käigus kompilleeritakse kogu vajalik pilditöötlustarkvara ning tekitatakse kausta .\ fail fisheye2pane.exe. See kutsutakse välja failile myyr.jpg ning tekitatakse sellest väljund TEST.jpeg. 
 
 
 
@@ -17,13 +17,10 @@ DEWRAPPER buildimine. Selle käigus kompilleeritakse kogu vajalik pilditöötlustar
 Kaustad ja failid:
 ----------------------------
 
-DEWRAPPER 		- kaust, kus paikneb DEWRAPPER kood (Eclipse projekt)
+fisheye2pane 		- kaust, kus paikneb DEWRAPPER kood (Eclipse projekt)
 jpeg-9 			- kaust, kus paikneb libjpeg kood
 jpeg_lib_makes 		- erinevad libjepg make ja configuratsiooni failid vastavalt 				platvormile. Sealt kopeerivad 
-
 Build_Debian		-Debiani buildscript
 Build_Windows.BAT	-Windowsi buildscript
 
-EEROR.txt 		- Errorilogi (ei sisalda veel mõistliku teksti)
-PROGRESS.txt		- Tehtud tööde logi (halvasti struktureeritud sisu)
 

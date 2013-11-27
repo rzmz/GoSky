@@ -8,6 +8,7 @@ echo "fout - output image file"
 exit
 fi
 
+
 if [ -z "${1//[0-9]/}" ]; then
    :
 else
