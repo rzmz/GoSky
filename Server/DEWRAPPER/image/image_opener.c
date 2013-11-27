@@ -44,8 +44,8 @@ void open_img(char* fname){
 	buffer = (*cinfo.mem->alloc_sarray) ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 	H=cinfo.image_height;
 	W=cinfo.image_width;
-	printf("h%i, w%i \n", H,W);
-	printf("Rea pikkus %i\n", row_stride);
+	//printf("h%i, w%i \n", H,W);
+	//printf("Rea pikkus %i\n", row_stride);
 
 	//Mälu tellimine ridade pointerite jaoks
 	//[0]->null

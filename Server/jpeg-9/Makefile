@@ -9,12 +9,12 @@
 CC= gcc
 
 # You may need to adjust these cc options:
-CFLAGS=  -Wall
+CFLAGS= -g3 -Wall
 # Generally, we recommend defining any configuration symbols in jconfig.h,
 # NOT via -D switches here.
 
 # Link-time cc options:
-LDFLAGS= -L.
+LDFLAGS= -L. -g3 -Wall
 
 # To link any special libraries, add the necessary -l commands here.
 LDLIBS= 
@@ -30,7 +30,7 @@ LN= $(CC)
 # file deletion command
 RM= rm -f
 # library (.a) file creation command
-AR= ar rc
+AR= ar rcs
 # second step in .a creation (use "touch" if not needed)
 AR2= ranlib
 

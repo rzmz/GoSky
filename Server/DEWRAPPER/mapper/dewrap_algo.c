@@ -120,11 +120,15 @@ void DWPA_set_parameters(int w, int h, int x, int y, int r, int f){
 		write_error_log("DWPA_center parameters out of range");
 		exit(0);
 		}
+	
+	if(R_eye == 0){
+		R_eye=H_D/2;			
+		}
 
 
 	f_U=f;
 	if(f_U<R_eye*0.9) f_U=R_eye*0.9;
-	if(f==0) f_U=R_eye;
+	if(f==0) f_U=R_eye*0.90;
 
 
 	f_D=f_U;

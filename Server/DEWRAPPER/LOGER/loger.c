@@ -5,7 +5,8 @@
  *      Author: xp
  */
 #include <stdio.h>
-
+#include <string.h>
+#include <time.h>
 #include "loger.h"
 
 
@@ -29,7 +30,17 @@ void close_log(t_log *LOG){
 
 void write_log(char *msg, t_log *LOG){
 	if(LOG->isOpend){
-		fputs(msg, LOG->pFile);
+		char str_msg[1024];
+		time_t rawtime;
+		struct tm * timeinfo;
+
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		char *date_time=asctime(timeinfo);		
+		char *new_line=strchr ( date_time, '\n' );
+		new_line[0]=0;
+  		sprintf(str_msg, "%s:%s", date_time, msg);		
+		fputs(str_msg, LOG->pFile);
 		}
 	return;
 	}

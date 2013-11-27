@@ -35,10 +35,10 @@ BUILDDIR = ./
 
 COBJECTS=main.o mapper.o dewrap_algo.o loger.o loger_error.o loger_progress.o image_opener.o image_saver.o
 
-all: DEWRAPPER.exe
+all: fishey2pane.exe
 
-DEWRAPPER.exe: $(COBJECTS) 
-	$(LN) $(LDFLAGS) -o DEWRAPPER.exe $(COBJECTS) $(LIBS) -ljpeg
+fishey2pane.exe: $(COBJECTS) 
+	$(LN) $(LDFLAGS) -o fishey2pane.exe $(COBJECTS) $(LIBS) -ljpeg
 	
 main.o: $(DIR1)/main.c
 	$(CC) $(DIR1)/main.c -c -o main.o $(CFLAGS) $(INCS)

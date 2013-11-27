@@ -16,4 +16,7 @@ void write_progress_log(char *msg){
 	return;
 	}
 
-
+void close_progress_log(void){
+	close_log(&progress_log);
+	return;
+	}

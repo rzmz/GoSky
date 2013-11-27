@@ -12,7 +12,7 @@ cp jpeg-9/libjpeg.a DEWRAPPER/image/libjpg/libjpeg.a
 make -f MakeDebian
 make clean -f MakeDebian
 
-./DEWRAPPER.exe -R 550 -x 690 -y 450 -fin "myyr.jpg" -fout "TEST.jpg" -inte 500
+./fishey2pane.exe -R 550 -x 690 -y 450 -fin "myyr.jpg" -fout "TEST.jpg" -inte 500
 
 rm EEROR.txt
 rm PROGRESS.txt
