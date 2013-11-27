@@ -54,7 +54,7 @@ point P(int x, int y){
 
 
 /**
- * Funktsiooni P(x,y) viitab moonutatud pildid punktidele, kus
+ * Funktsiooni P(x,y) viitab moonutatud pildi punktidele, kus
  * x ja y on loodava pildi koordinaadid ning P on punkt moonutatud pildil. Vajab enne tööd
  * funktsiooniga void DWPA_set_parameters2(int w, int h, int x, int y, int r, double area)
  * initaliseerimist!
