@@ -1,7 +1,8 @@
+var _keysJSON = null;
 var _dirJSON = null;
 var _filesJSON = null;
 var _filesArray = null;
-var _serverUrl = "http://gosky.rasmus.ee/public/";
+var _serverUrl = "public/";
 var _identifierKey = "";
 var _isPlaying = false;
 var _timeOut = 300; // in milliseconds
@@ -21,43 +22,90 @@ var currentDir = function(dir){
 
 $(document).ready(function(){
     
-    setEvents();
+    wireEvents();
     
     _identifierKey = getParams().identifierKey;
-    
-    // todo: hardcoded Rasmus's identifierKey
-    if(!_identifierKey){
-        _identifierKey = "4afptz753wfi";
-    }
-    
-    if(!_identifierKey){
-        alert("Please supply identifierKey!");
-    }
-    
-    if(getParams().start){
-        _currentImageIndex = parseInt(getParams().start);
-    }
         
-    $.getJSON(_serverUrl + "api/directories.php?identifierKey=" + _identifierKey, function(result){
-        _dirJSON = result;
-        if(_dirJSON && _dirJSON.directories_count > 0){
-            var dirArray = _dirJSON.directories;
+    // get all available identifierkeys from the server
+    $.getJSON(_serverUrl + "api/keys.php", function(result){
+        _keysJSON = result;
+        if(_keysJSON && _keysJSON.keys_count > 0){
 
-            for(var i = 0; i < dirArray.length; i++){
-                
+            var keysArray  = _keysJSON.keys;
+
+            if(!_identifierKey){
+                _identifierKey = keysArray[0].name;
             }
-            
-            var dir = dirArray[dirArray.length - 1].name;
-                                    
-            $.getJSON(_serverUrl + "api/files.php?identifierKey=" + _identifierKey + "&dir=" + dir, function(result){
-                _filesJSON = result;
-                if(_filesJSON && _filesJSON.files_count > 0){
-                    _filesArray = _filesJSON.files;
-                    changeImageSrc(_currentImageIndex);
+
+            var $keysDIV = $("#keysDIV");
+
+            for(var i = 0; i < keysArray.length; i++){
+                var l = document.createElement("a");
+                var text = document.createTextNode(keysArray[i].name);
+                l.href = "?identifierKey=" + keysArray[i].name;
+                l.appendChild(text);
+        
+                if(_identifierKey === keysArray[i].name){
+                    var bold = document.createElement("b");
+                    bold.appendChild(l);
+                    $keysDIV.append(bold);                    
+                } else {
+                    $keysDIV.append(l);
                 }
-            });
+                
+                $keysDIV.append(document.createTextNode("\u00a0\u00a0\u00a0"));
+                
+            }    
+            
+            if(getParams().start){
+                _currentImageIndex = parseInt(getParams().start);
+            }    
+            
+            $.getJSON(_serverUrl + "api/directories.php?identifierKey=" + _identifierKey, function(result){
+                _dirJSON = result;
+                if(_dirJSON && _dirJSON.directories_count > 0){
+
+                    var dirArray = _dirJSON.directories;
+                    
+                    var $dirsDIV = $("#directoriesDIV");
+                    
+                    var currentDir = getParams().dir;
+                    
+                    if(!currentDir){
+                        currentDir = dirArray[0].name;
+                    }
+                    
+                    for(var i = 0; i < dirArray.length; i++){
+                        var l = document.createElement("a");
+                        var text = document.createTextNode(dirArray[i].name);
+                        l.href = "?identifierKey=" + _identifierKey + "&dir=" + dirArray[i].name;
+                        l.appendChild(text);
+        
+                        if(currentDir === dirArray[i].name){
+                            var bold = document.createElement("b");
+                            bold.appendChild(l);
+                            $dirsDIV.append(bold);                    
+                        } else {
+                            $dirsDIV.append(l);
+                        }
+                        
+                        $dirsDIV.append(document.createTextNode("\u00a0\u00a0\u00a0"));
+                        
+                    }
+                                                        
+                    $.getJSON(_serverUrl + "api/files.php?identifierKey=" + _identifierKey + "&dir=" + currentDir, function(result){
+                        _filesJSON = result;
+                        if(_filesJSON && _filesJSON.files_count > 0){
+                            _filesArray = _filesJSON.files;
+                            changeImageSrc(_currentImageIndex);
+                        }
+                    });
+                }
+            });        
+            
         }
-    });        
+    });
+
 });
 
 var _getParams = null;
@@ -162,7 +210,7 @@ var updateStatusLabel = function(){
     $_totalPicsLabel.html(_filesArray.length);
 }
 
-var setEvents = function() {
+var wireEvents = function() {
     
     $("#playButton").click(function(e){
         if(_isPlaying){
