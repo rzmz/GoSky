@@ -7,12 +7,12 @@ cp jpeg_lib_makes/Makefile_deb jpeg-9/Makefile
 make -C jpeg-9 clean -f Makefile
 make -C jpeg-9 -f Makefile 
 
-cp jpeg-9/libjpeg.a fisheye2pane/image/libjpg/libjpeg.a
+cp jpeg-9/libjpeg.a fisheye2plain/image/libjpg/libjpeg.a
 
 make -f MakeDebian
 make clean -f MakeDebian
 
-./fisheye2pane.exe -R 550 -x 690 -y 450 -fin "myyr.jpg" -fout "TEST.jpg" -inte 500
+./fisheye2plain.sh -R 550 -x 690 -y 450 -fin "myyr.jpg" -fout "TEST.jpg" -inte 500
 
 rm EEROR.txt
 rm PROGRESS.txt

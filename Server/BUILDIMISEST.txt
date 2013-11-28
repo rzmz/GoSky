@@ -1,13 +1,13 @@
-Programmi fisheye2pane buildimisest
+Programmi fisheye2plain buildimisest
 --------------------------------
 
 Buildimine on koostatud gcc kompillaatorile.
 
-Buildimine toimub kahes osas, kus esmalt kompilleeritakse libjpeg-9 ning pärast seda pilditöötlus tarkvara fisheye2pane. Buildimist saab esile kutsuda käsureaskriptidega. Koostatud on kaks skripti nii Windows kui Debian OP.-süsteemi jaoks.
+Buildimine toimub kahes osas, kus esmalt kompilleeritakse libjpeg-9 ning pärast seda pilditöötlus tarkvara fisheye2plain. Buildimist saab esile kutsuda käsureaskriptidega. Koostatud on kaks skripti nii Windows kui Debian OP.-süsteemi jaoks.
 
-libjpeg-9 buildimine. Buildimise käigus koostatakse libjpeg.a fail, mis kopeeritakse pärast buildi asukohale fisheye2pane\image\libjpg\libjpeg.a.
+libjpeg-9 buildimine. Buildimise käigus koostatakse libjpeg.a fail, mis kopeeritakse pärast buildi asukohale fisheye2plain\image\libjpg\libjpeg.a.
 
-fisheye2pane buildimine. Selle käigus kompilleeritakse kogu vajalik pilditöötlustarkvara ning tekitatakse kausta .\ fail fisheye2pane.exe. See kutsutakse välja failile myyr.jpg ning tekitatakse sellest väljund TEST.jpeg. 
+fisheye2plain buildimine. Selle käigus kompilleeritakse kogu vajalik pilditöötlustarkvara ning tekitatakse kausta .\ fail fisheye2plain.exe. See kutsutakse välja failile myyr.jpg ning tekitatakse sellest väljund TEST.jpeg. 
 
 
 
@@ -17,7 +17,7 @@ fisheye2pane buildimine. Selle käigus kompilleeritakse kogu vajalik pilditöötlus
 Kaustad ja failid:
 ----------------------------
 
-fisheye2pane 		- kaust, kus paikneb DEWRAPPER kood (Eclipse projekt)
+fisheye2plain 		- kaust, kus paikneb fisheye2plain (vana nimi DEWRAPPER) kood (Eclipse projekt)
 jpeg-9 			- kaust, kus paikneb libjpeg kood
 jpeg_lib_makes 		- erinevad libjepg make ja configuratsiooni failid vastavalt 				platvormile. Sealt kopeerivad 
 Build_Debian		-Debiani buildscript

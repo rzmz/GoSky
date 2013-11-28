@@ -21,12 +21,12 @@ AR2= ranlib
 
 
 #includimise directoryd
-DIR1 = fisheye2pane
-DIR2 = fisheye2pane/LOGER
-DIR3 = fisheye2pane/image
-DIR4 = fisheye2pane/image/libjpg
-DIR5 = fisheye2pane/image/libbmp
-DIR6 = fisheye2pane/mapper
+DIR1 = fisheye2plain
+DIR2 = fisheye2plain/LOGER
+DIR3 = fisheye2plain/image
+DIR4 = fisheye2plain/image/libjpg
+DIR5 = fisheye2plain/image/libbmp
+DIR6 = fisheye2plain/mapper
 
 INCS = -I$(DIR1) -I$(DIR2) -I$(DIR3) -I$(DIR4) -I$(DIR5) -I$(DIR6) 
 LIBS = -L$(DIR4)
@@ -35,10 +35,10 @@ BUILDDIR = ./
 
 COBJECTS=main.o mapper.o dewrap_algo.o loger.o loger_error.o loger_progress.o image_opener.o image_saver.o
 
-all: fisheye2pane.exe
+all: fisheye2plain.sh
 
-fisheye2pane.exe: $(COBJECTS) 
-	$(LN) $(LDFLAGS) -o fisheye2pane.exe $(COBJECTS) $(LIBS) -ljpeg
+fisheye2plain.sh: $(COBJECTS) 
+	$(LN) $(LDFLAGS) -o fisheye2plain.sh $(COBJECTS) $(LIBS) -ljpeg
 	
 main.o: $(DIR1)/main.c
 	$(CC) $(DIR1)/main.c -c -o main.o $(CFLAGS) $(INCS)
