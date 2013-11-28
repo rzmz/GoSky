@@ -390,7 +390,7 @@ public class MainActivity extends Activity {
 		}
 
 		_uploadScriptUrl = String.format("%s?%s", _uploadScriptUrl,
-				TextUtils.join("&amp;", formattedParameters));
+				TextUtils.join("&", formattedParameters));
 
 		_interval = Integer.parseInt(getPref().getString(
 				Preferences.INTERVAL_PREF, "5"));
