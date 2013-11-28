@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
 	static final String TAG = MainActivity.class.getSimpleName();
 
 	final Handler _handler = new Handler();
-
+	
 	private SurfaceView _surfaceView = null;
 
 	int _interval = 60;
@@ -112,7 +112,6 @@ public class MainActivity extends Activity {
 		case R.id.menu_settings:
 			showPreferences(null);
 			break;
-
 		}
 
 		return true;
@@ -129,9 +128,7 @@ public class MainActivity extends Activity {
 
 		switch (requestCode) {
 		case RESULT_SETTINGS:
-			Log.d(TAG, "something, something, something dark side!");
 			break;
-
 		}
 
 	}
@@ -183,6 +180,15 @@ public class MainActivity extends Activity {
 		return _identifierKey;
 	}
 
+	private Toast _toast = null;
+	@SuppressLint("ShowToast")
+	public Toast getToast(){
+		if(_toast == null){
+			_toast = Toast.makeText(_context, "", Toast.LENGTH_LONG);
+		}
+		return _toast;
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -205,8 +211,8 @@ public class MainActivity extends Activity {
 
 		prepareApplication();
 
-		// check internet connection
-		_handler.post(internetConnectionChecker);
+		// check if app is ready to upload
+		_handler.post(appReadyChecker);
 
 	}
 
@@ -285,14 +291,9 @@ public class MainActivity extends Activity {
 
 	public void toggleWifi(View view) {
 		_wifiManager.setWifiEnabled(!_wifiManager.isWifiEnabled());
-		Log.d(TAG,
-				String.format("Wifi connection %s",
-						_wifiManager.isWifiEnabled() ? "disabled" : "enabled"));
-		Toast.makeText(
-				this,
-				String.format("%s WIFI",
-						(_wifiManager.isWifiEnabled() ? "Disabling"
-								: "Enabling")), Toast.LENGTH_SHORT).show();
+		Log.d(TAG, String.format("Wifi connection %s", _wifiManager.isWifiEnabled() ? "disabled" : "enabled"));
+		getToast().setText(String.format("%s WIFI", (_wifiManager.isWifiEnabled() ? "Disabling" : "Enabling")));
+		getToast().show();
 	}
 
 	private boolean getMobileDataEnabled() {
@@ -320,15 +321,9 @@ public class MainActivity extends Activity {
 
 	public void toggleData(View view) {
 		setMobileDataEnabled(!getMobileDataEnabled());
-		Log.d(TAG, String.format("Data connection %s",
-				getMobileDataEnabled() ? "disabled" : "enabled"));
-
-		Toast.makeText(
-				this,
-				String.format("%s mobile data",
-						(getMobileDataEnabled() ? "Disabling" : "Enabling")),
-				Toast.LENGTH_SHORT).show();
-
+		Log.d(TAG, String.format("Data connection %s", getMobileDataEnabled() ? "disabled" : "enabled"));
+		getToast().setText(String.format("%s mobile data", (getMobileDataEnabled() ? "Disabling" : "Enabling")));
+		getToast().show();
 	}
 
 	public void toggleAction(View view) {
@@ -346,10 +341,8 @@ public class MainActivity extends Activity {
 			_settingsButton.setClickable(true);
 		}
 
-		Toast.makeText(this,
-				"Application " + (_isTakingPictures ? "started" : "stopped"),
-				Toast.LENGTH_SHORT).show();
-
+		getToast().setText("Application " + (_isTakingPictures ? "started" : "stopped"));
+		getToast().show();
 	}
 
 	private SharedPreferences _sharedPreferences = null;
@@ -433,22 +426,30 @@ public class MainActivity extends Activity {
 		}
 	};
 
-	private Runnable internetConnectionChecker = new Runnable() {
+	private Runnable appReadyChecker = new Runnable() {
 		@Override
 		public void run() {
-			boolean conn = checkInternetConnection();
-			if (!conn) {
-				Toast.makeText(_context,
-						String.format("No internet connection"),
-						Toast.LENGTH_SHORT).show();
+			if (!checkInternetConnection()) {
+				getToast().setText("No internet connection");
+				getToast().show();
 				disableButton(_startStopButton);
 				_handler.removeCallbacks(mainOperation);
 			} else {
-				if(_isAppReady){
-					enableButton(_startStopButton);
+				String url = (String) getPref().getString(Preferences.SERVER_URL_PREF, "").trim();
+				if(url == null || url == "" || url.length() == 0){
+					getToast().setText("Please specify upload URL");
+					getToast().show();
+					disableButton(_startStopButton);
+					_handler.removeCallbacks(mainOperation);
+				} else {
+					if(_isAppReady){
+						enableButton(_startStopButton);
+						getToast().setText("");
+						getToast().cancel();
+					}					
 				}
-			}			
-			_handler.postDelayed(internetConnectionChecker, CONN_CHECK_INTERVAL);
+			}
+			_handler.postDelayed(appReadyChecker, CONN_CHECK_INTERVAL);
 		}
 	};
 
@@ -458,7 +459,7 @@ public class MainActivity extends Activity {
 
 	private void handlerRemoveCallbacks() {
 		_handler.removeCallbacks(mainOperation);
-		_handler.removeCallbacks(internetConnectionChecker);
+		_handler.removeCallbacks(appReadyChecker);
 	}
 
 	@SuppressLint("InlinedApi")

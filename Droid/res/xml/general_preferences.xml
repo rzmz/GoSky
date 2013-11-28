@@ -3,6 +3,7 @@
 
     <PreferenceCategory android:title="@string/pref_general" >
         <EditTextPreference
+            android:defaultValue="gosky.rasmus.ee"
             android:key="prefServerUrl"
             android:summary="@string/pref_serverUrl_summary"
             android:title="@string/pref_serverUrl_title" />
