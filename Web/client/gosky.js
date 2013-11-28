@@ -11,11 +11,7 @@ var $_image = null;
 var $_slider = null;
 var $_playButton = null;
 
-Template.image.directories = function(){
-    return Session.get("directories") || [];
-}
-
-Template.image.currentDir = function(dir){
+var currentDir = function(dir){
     if(getParams().dir == dir) {
         return true;
     } else {
@@ -23,11 +19,9 @@ Template.image.currentDir = function(dir){
     }
 }
 
-Template.image.identifierKey = function(){
-    return Session.get("identifierKey");
-}
-
-Template.image.rendered = function(){
+$(document).ready(function(){
+    
+    setEvents();
     
     _identifierKey = getParams().identifierKey;
     
@@ -38,32 +32,23 @@ Template.image.rendered = function(){
     
     if(!_identifierKey){
         alert("Please supply identifierKey!");
-    } else {
-        Session.set("identifierKey", _identifierKey);
     }
     
     if(getParams().start){
         _currentImageIndex = parseInt(getParams().start);
     }
-    
-    if(getParams().dir){
-        Session.set("dir", getParams().dir);
-    }
-    
+        
     $.getJSON(_serverUrl + "api/directories.php?identifierKey=" + _identifierKey, function(result){
         _dirJSON = result;
         if(_dirJSON && _dirJSON.directories_count > 0){
             var dirArray = _dirJSON.directories;
-            Session.set("directories", dirArray);
-            
-            var dir = dirArray[dirArray.length - 1].name;
-                        
-            if(Session.get("dir")){
-                dir = Session.get("dir");
+
+            for(var i = 0; i < dirArray.length; i++){
+                
             }
             
-            console.log(dir);
-            
+            var dir = dirArray[dirArray.length - 1].name;
+                                    
             $.getJSON(_serverUrl + "api/files.php?identifierKey=" + _identifierKey + "&dir=" + dir, function(result){
                 _filesJSON = result;
                 if(_filesJSON && _filesJSON.files_count > 0){
@@ -73,7 +58,7 @@ Template.image.rendered = function(){
             });
         }
     });        
-};
+});
 
 var _getParams = null;
 var getParams = function(){
@@ -98,13 +83,13 @@ var getCurrentImageIndex = function(){
 var startPlaying = function(){
     _isPlaying = true;
     setPlayButtonStatus("stop");
-    _setInterval = Meteor.setInterval(changeImageSrc, _timeOut);    
+    _setInterval = setInterval(changeImageSrc, _timeOut);
 }
 
 var stopPlaying = function(){
     _isPlaying = false;
     setPlayButtonStatus("play");
-    Meteor.clearInterval(_setInterval);
+    clearInterval(_setInterval);
 }
 
 var setPlayButtonStatus = function(status){
@@ -177,45 +162,44 @@ var updateStatusLabel = function(){
     $_totalPicsLabel.html(_filesArray.length);
 }
 
-Template.image.events({
-    "click #playButton": function(e){
+var setEvents = function() {
+    
+    $("#playButton").click(function(e){
         if(_isPlaying){
             stopPlaying();
         } else {
             startPlaying();
         }
-    },
+    });
 
-    "click #firstButton": function(e){
+    $("#firstButton").click(function(e){
         _currentImageIndex = 0;
         changeImageSrc();
-    },
+    });
     
-    "click #previousTen": function(e){
+    $("#previousTen").click(function(e){
         _currentImageIndex = _currentImageIndex - 10;
         changeImageSrc();
-    },
+    });
     
-    "click #previousButton": function(e){
+    $("#previousButton").click(function(e){
         _currentImageIndex--;
         changeImageSrc();
-    },
+    });
     
-    "click #nextButton": function(e){
+    $("#nextButton").click(function(e){
         _currentImageIndex++;
         changeImageSrc();
-    },
-
-    "click #nextTen": function(e){
+    });
+    
+    $("#nextTen").click(function(e){
         _currentImageIndex = _currentImageIndex + 10;
         changeImageSrc();
-    },
-    
-    "click #lastButton": function(e){
+    });
+
+    $("#lastButton").click(function(e){
         _currentImageIndex = _filesArray.length - 1;
         changeImageSrc();
-    }
+    });
     
-    
-    
-});    
+};
