@@ -1,4 +1,6 @@
 <?php
+putenv("PATH=/usr/local/bin:/usr/bin:/bin");
+
 ob_start();
 header('Content-Type: application/xml');
 
@@ -65,10 +67,10 @@ if($_FILES && sizeof($_FILES) > 0){
           switch ($_GET['lensConversion'])
           {
             case "fisheye2pano":
-              $command = './fisheye2pano.sh 0 ' . $target_file_path . ' ' . $target_converted_file_path;
+              $command = 'sh fisheye2pano.sh 0 ' . $target_file_path . ' ' . $target_converted_file_path;
             break;
             case "fisheye2plain":
-              $command = './fisheye2plain.sh -fin ' . $target_file_path . ' -fout ' . $target_converted_file_path);
+              $command = './fisheye2plain.sh -fin ' . $target_file_path . ' -fout ' . $target_converted_file_path;
             break;
           }
         }

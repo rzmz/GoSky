@@ -70,4 +70,4 @@ else
 fi
 
 
-./label $fout $fout "$label_string"
+sh label.sh $fout $fout "$label_string"
