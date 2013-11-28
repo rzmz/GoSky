@@ -24,9 +24,9 @@
 
     <!-- General prefs -->
     <string name="pref_general">General</string>
-    <string name="pref_serverUrl_title">Enter server URL</string>
+    <string name="pref_serverUrl_title">Upload URL</string>
     <string name="pref_serverUrl_summary">Server url where your upload script is installed to.</string>
-    <string name="pref_interval_title">Select interval</string>
+    <string name="pref_interval_title">Time interval</string>
     <string name="pref_interval_summary">Select interval in seconds.</string>
     <string name="pref_intervalDefault">5</string>
 

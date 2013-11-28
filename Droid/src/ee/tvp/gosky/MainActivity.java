@@ -22,6 +22,7 @@ import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,6 +46,8 @@ import ee.tvp.gosky.utils.StorageWrapper;
 import ee.tvp.gosky.utils.SysInfo;
 
 public class MainActivity extends Activity {
+
+	static final int CONN_CHECK_INTERVAL = 1000;
 
 	private static final int RESULT_SETTINGS = 1;
 
@@ -190,8 +193,7 @@ public class MainActivity extends Activity {
 		_dataButton = (ToggleButton) findViewById(R.id.toggleData);
 		_startStopButton = (ToggleButton) findViewById(R.id.startStop);
 		_settingsButton = (Button) findViewById(R.id.settingsButton);
-		_startStopButton.setEnabled(false);
-		_startStopButton.setClickable(false);
+		disableButton(_startStopButton);
 		_wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		_connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -203,6 +205,19 @@ public class MainActivity extends Activity {
 
 		prepareApplication();
 
+		// check internet connection
+		_handler.post(internetConnectionChecker);
+
+	}
+
+	void enableButton(Button button) {
+		button.setEnabled(true);
+		button.setClickable(true);
+	}
+
+	void disableButton(Button button) {
+		button.setEnabled(false);
+		button.setClickable(false);
 	}
 
 	@Override
@@ -368,19 +383,21 @@ public class MainActivity extends Activity {
 		parameters.put("identifierKey", getIndentifierKey());
 
 		// lens conversion parameter
-		String lensConversion = getPref().getString(Preferences.LENS_CONVERSION, "none");		
+		String lensConversion = getPref().getString(
+				Preferences.LENS_CONVERSION, "none");
 		parameters.put("lensConversion", lensConversion);
 
 		String[] formattedParameters = new String[parameters.size()];
 		int counter = 0;
-		
+
 		for (Entry<String, String> entry : parameters.entrySet()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(String.format("%s=%s", entry.getKey(), entry.getValue()));
 			formattedParameters[counter++] = sb.toString();
 		}
 
-		_uploadScriptUrl = String.format("%s?%s", _uploadScriptUrl, TextUtils.join("&amp;", formattedParameters));
+		_uploadScriptUrl = String.format("%s?%s", _uploadScriptUrl,
+				TextUtils.join("&amp;", formattedParameters));
 
 		_interval = Integer.parseInt(getPref().getString(
 				Preferences.INTERVAL_PREF, "5"));
@@ -416,12 +433,32 @@ public class MainActivity extends Activity {
 		}
 	};
 
+	private Runnable internetConnectionChecker = new Runnable() {
+		@Override
+		public void run() {
+			boolean conn = checkInternetConnection();
+			if (!conn) {
+				Toast.makeText(_context,
+						String.format("No internet connection"),
+						Toast.LENGTH_SHORT).show();
+				disableButton(_startStopButton);
+				_handler.removeCallbacks(mainOperation);
+			} else {
+				if(_isAppReady){
+					enableButton(_startStopButton);
+				}
+			}			
+			_handler.postDelayed(internetConnectionChecker, CONN_CHECK_INTERVAL);
+		}
+	};
+
 	private void handlerPostDelayed() {
 		_handler.postDelayed(mainOperation, getIntervalInMillis());
 	}
 
 	private void handlerRemoveCallbacks() {
 		_handler.removeCallbacks(mainOperation);
+		_handler.removeCallbacks(internetConnectionChecker);
 	}
 
 	@SuppressLint("InlinedApi")
@@ -444,10 +481,20 @@ public class MainActivity extends Activity {
 		return hdr;
 	}
 
+	public boolean checkInternetConnection() {
+		boolean result = false;
+
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+		result = activeNetwork != null && activeNetwork.isConnected();
+
+		return result;
+	}
+
+	private boolean _isAppReady;
 	public void setAppReady(boolean state) {
-		_startStopButton.setClickable(state);
-		_startStopButton.setEnabled(state);
-		Log.d(TAG, "Setting app ready");
+		_isAppReady = state;
 	}
 
 	@Override
