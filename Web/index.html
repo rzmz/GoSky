@@ -1,0 +1,33 @@
+<head>
+  <title>GoSky</title>
+  <script type="text/javascript" src="client/thirdparty/jquery-min.js"></script>
+  <script type="text/javascript" src="client/thirdparty/jquery-ui-custom.min.js"></script>
+  <script type="text/javascript" src="client/gosky.js"></script>
+  <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css">
+  <link rel="stylesheet" href="client/thirdparty/jquery-ui-custom.min.css">
+  <link rel="stylesheet" href="client/gosky.css">
+</head>
+
+<body>
+  <div class="container">
+    <h3>Welcome to GoSky!</h3>
+    <div id="directoriesDIV"></div>
+    <hr>
+    <div id="imageDIV"><img id="image" src="http://gosky.rasmus.ee/public/incoming/4afptz753wfi/20131029/15/converted/IMG_20131029_143309.jpg" /></div>
+    <hr>
+    <div id="slider"></div>
+    <hr>
+    <div id="toolbarDIV">
+      <button id="firstButton" class="btn btn-success"><<</button>
+      <button id="previousTen" class="btn btn-success">-10</button>
+      <button id="previousButton" class="btn btn-success"><</button>
+      <button id="playButton" class="btn btn-success" data-play="Play" data-stop="Stop">Play</button>
+      <button id="nextButton" class="btn btn-success">></button>
+      <button id="nextTen" class="btn btn-success">+10</button>
+      <button id="lastButton" class="btn btn-success">>></button>
+    </div>
+    <div id="statusDiv">
+      Showing <span id="currentPicLabel">0</span> of <span id="totalPicsLabel">1000</span>
+    </div>
+  </div>
+</body>

@@ -1,0 +1,73 @@
+#help
+if [ "$1" == "-help" -o "$2" == "-help" -o "$3" == "-help" ];
+then
+echo "dewrapper north fin fout"
+echo "north - angle pointing to north. It is measured counterclockwise from the center of the fishey image and between the horisontal line. After dewrapping the north is in the middle of the image."
+echo "fin - input image file"
+echo "fout - output image file"
+exit
+fi
+
+
+if [ -z "${1//[0-9]/}" ]; then
+   :
+else
+    echo "north argument is not an integer! See dewrapper -help"
+fi
+
+
+
+#Arguments
+start=$(expr $1 - 90)
+fin=$2
+fout=$3
+
+
+#If input image exists
+if ls $fin &> /dev/null; 
+then
+	:
+else
+	echo "Input file $fin dose not exist!"
+exit
+fi
+
+
+#Get image W and H
+input_w=$(identify -format %w $fin)
+input_h=$(identify -format %h $fin)
+
+#Calculate parameters
+Rmax=$(expr $input_h / 2)
+CenterX=$(expr $input_w / 2)
+CenterY=$(expr $input_h / 2)
+Rmin=$(expr $Rmax / 7)
+end_angle=0 
+
+#Debug echo
+#echo "Input file $fin"
+#echo "Output file $fout"
+#echo "W $input_w H $input_h"
+#echo "Rmax $Rmax Rmin $Rmin X $CenterX Y $CenterY start $start"
+
+
+if [ "$Rmax" == "0" ]; then
+	convert $fin +distort  DePolar 0 $fout
+else
+	convert $fin +distort  DePolar "$Rmax $Rmin $CenterX $CenterY $start $end_angel" $fout
+fi
+
+#Nime eraldamine
+#IMG_20131030_131323
+if [ "${#fin}" == "23" ]; then
+	label_string=""${fin:4:4}"-"${fin:8:2}"-"${fin:10:2}" "${fin:13:2}":"${fin:15:2}":"${fin:17:2}""
+	#echo "Date string is taken from file name."
+else
+	current_date=$(date +"%d-%m-%y")
+	current_time=$(date +"%H:%M:%S")
+	label_string=""$current_date" "$current_time""	
+	echo "Warning: Can't read date string from file name. It's set as current time."
+fi
+
+
+sh label.sh $fout $fout "$label_string"

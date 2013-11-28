@@ -1,4 +1,6 @@
 <?php
+putenv("PATH=/usr/local/bin:/usr/bin:/bin");
+
 ob_start();
 header('Content-Type: application/xml');
 
@@ -19,7 +21,7 @@ function array_to_xml($data, &$xml) {
             }
         }
         else {
-            $xml->addChild("$key", "$value");
+            $xml->addChild($key, urlencode($value));
         }
     }
 }
@@ -58,20 +60,24 @@ if($_FILES && sizeof($_FILES) > 0){
     if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target_file_path)) {
         $data['resultMessage'] = "Success";
         $data['resultCode'] = CODE_OK;        
-        $target_converted_file_path = $upload_converted_path . basename($_FILES['uploadedfile']['name']);
+        $target_converted_file_path = $upload_converted_path . basename($_FILES['uploadedfile']['name']);        
+        $command = "cp $target_file_path $target_converted_file_path";
+        
         if(isset($_GET['lensConversion'])){
           switch ($_GET['lensConversion'])
           {
             case "fisheye2pano":
-              $data['shell'] = shell_exec('convert ' . $target_file_path . ' +distort DePolar 0 ' . $target_converted_file_path);
+              $command = "convert $target_file_path +distort  DePolar 0 $target_converted_file_path";
             break;
             case "fisheye2plain":
-              $data['shell'] = shell_exec('./dewrapper -R 1200 -inte 1080 -fin ' . $target_file_path . ' -fout ' . $target_converted_file_path);
+              $command = "./fisheye2plain.sh -fin $target_file_path -fout $target_converted_file_path";
             break;
-            default:
-              $data['shell'] = shell_exec('cp ' . $target_file_path . ' ' . $target_converted_file_path);
           }
         }
+        
+        $data['shell_result'] = shell_exec($command);
+        $data['shell_command'] = $command;
+        
     } else {
         $data['resultMessage'] =  "Failure";
     }    
