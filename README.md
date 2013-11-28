@@ -10,4 +10,4 @@ Taavi Väljaots <taavi88@ut.ee>
 * Veebirakendus, mis kuvab töödeldud pilte timelapse-põhiselt
 
 ### Projekti wiki: https://github.com/rzmz/GoSKy/wiki
-### Veebirakendus asub aadressil: https://gosky.rasmus.ee/
+### Veebirakendus asub aadressil: http://gosky.rasmus.ee/
